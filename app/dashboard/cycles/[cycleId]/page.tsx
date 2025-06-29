@@ -1,11 +1,12 @@
 import { DeploymentBoard } from '@/components/deployment/deployment-board';
 
 interface CyclePageProps {
-  params: {
+  params: Promise<{
     cycleId: string;
-  };
+  }>;
 }
 
-export default function CyclePage({ params }: CyclePageProps) {
-  return <DeploymentBoard cycleId={params.cycleId} />;
+export default async function CyclePage({ params }: CyclePageProps) {
+  const { cycleId } = await params;
+  return <DeploymentBoard cycleId={cycleId} />;
 }
