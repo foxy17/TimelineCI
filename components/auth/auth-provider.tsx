@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContext {
@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // Get initial session
@@ -47,20 +48,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
 
       if (!session) {
         router.push('/');
-      } else {
+      } else if (event === 'SIGNED_IN' && pathname === '/') {
+        // Only redirect to dashboard when user actually signs in from the login page
         router.push('/dashboard');
       }
+      // For other events (like TOKEN_REFRESHED), preserve the current URL
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, pathname]);
 
   if (loading) {
     return (

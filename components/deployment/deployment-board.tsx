@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DeploymentCard } from '@/components/deployment/deployment-card';
 import { DependencyErrorModal } from '@/components/deployment/dependency-error-modal';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -53,13 +53,14 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
     serviceName: string;
     unmetDeps: { service_name: string; service_id: string }[];
   } | null>(null);
+  const [isRealTimeConnected, setIsRealTimeConnected] = useState(false);
 
   useEffect(() => {
     loadData();
-    setupRealtimeSubscriptions();
+    const cleanup = setupRealtimeSubscriptions();
 
     return () => {
-      supabase.removeAllChannels();
+      cleanup();
     };
   }, [cycleId]);
 
@@ -103,8 +104,9 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
   };
 
   const setupRealtimeSubscriptions = () => {
+    // Create a single channel for both table subscriptions
     const channel = supabase
-      .channel('deployment-updates')
+      .channel(`deployment-updates-${cycleId}`)
       .on(
         'postgres_changes',
         {
@@ -113,13 +115,50 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
           table: 'service_deployments',
           filter: `cycle_id=eq.${cycleId}`,
         },
-        () => {
+        (payload) => {
+          console.log('Service deployment change:', payload);
+          // Add more detailed logging
+          console.log('Event type:', payload.eventType);
+          console.log('New record:', payload.new);
+          console.log('Old record:', payload.old);
           loadData();
         }
       )
-      .subscribe();
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'microservice_deps',
+          filter: `cycle_id=eq.${cycleId}`,
+        },
+        (payload) => {
+          console.log('Microservice dependency change:', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('New record:', payload.new);
+          console.log('Old record:', payload.old);
+          loadData();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to real-time updates for cycle:', cycleId);
+          setIsRealTimeConnected(true);
+          toast.success('Real-time updates connected');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Real-time subscription failed for cycle:', cycleId);
+          setIsRealTimeConnected(false);
+          toast.error('Real-time updates unavailable');
+        } else if (status === 'CLOSED') {
+          console.log('Real-time subscription closed for cycle:', cycleId);
+          setIsRealTimeConnected(false);
+        }
+      });
 
     return () => {
+      console.log('Cleaning up real-time subscription for cycle:', cycleId);
+      setIsRealTimeConnected(false);
       supabase.removeChannel(channel);
     };
   };
@@ -128,6 +167,32 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
     serviceId: string,
     action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
   ) => {
+    // Optimistic update - immediately update the UI
+    const optimisticStateMap = {
+      ready: 'ready' as const,
+      start: 'triggered' as const,
+      deployed: 'deployed' as const,
+      failed: 'failed' as const,
+      reset_not_ready: 'not_ready' as const,
+      reset_ready: 'ready' as const,
+      reset_triggered: 'triggered' as const,
+    };
+
+    const newState = optimisticStateMap[action];
+    
+    // Optimistically update the deployments state
+    setDeployments(prev => prev.map(d => 
+      d.service_id === serviceId 
+        ? { 
+            ...d, 
+            state: newState,
+            updated_at: new Date().toISOString(),
+            ...(action === 'start' && { started_at: new Date().toISOString() }),
+            ...((['deployed', 'failed'].includes(action)) && { finished_at: new Date().toISOString() })
+          }
+        : d
+    ));
+
     try {
       let error;
 
@@ -177,6 +242,9 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
       }
 
       if (error) {
+        // Revert optimistic update on error
+        loadData();
+        
         if (error.message === 'DEPENDENCIES_NOT_DEPLOYED') {
           // Get unmet dependencies for this cycle
           const { data: unmetDeps } = await supabase.rpc('get_unmet_dependencies', {
@@ -195,7 +263,17 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
       }
 
       toast.success('State updated successfully!');
+      
+      // If real-time is not connected, manually refresh after a short delay
+      if (!isRealTimeConnected) {
+        setTimeout(() => {
+          loadData();
+        }, 1000);
+      }
+      
     } catch (error: any) {
+      // Revert optimistic update on error
+      loadData();
       toast.error(error.message || 'Failed to update state');
     }
   };
@@ -232,9 +310,29 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
             Back to Cycles
           </Button>
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold text-slate-900">{cycleLabel}</h1>
           <p className="text-slate-600">Deployment Board - Cycle-Specific Dependencies</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm">
+            <div className={`w-2 h-2 rounded-full ${isRealTimeConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className="text-slate-600">
+              {isRealTimeConnected ? 'Real-time connected' : 'Real-time disconnected'}
+            </span>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              loadData();
+              toast.success('Data refreshed');
+            }}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </Button>
         </div>
       </div>
 
