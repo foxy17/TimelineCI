@@ -66,8 +66,7 @@ export function HistoryPage() {
     switch (state) {
       case 'deployed':
         return 'default';
-      case 'failed':
-        return 'destructive';
+
       case 'triggered':
         return 'secondary';
       case 'ready':
@@ -87,8 +86,7 @@ export function HistoryPage() {
         return 'In Progress';
       case 'deployed':
         return 'Deployed';
-      case 'failed':
-        return 'Failed';
+
       default:
         return state;
     }
@@ -151,7 +149,7 @@ export function HistoryPage() {
                 <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="triggered">In Progress</SelectItem>
                 <SelectItem value="deployed">Deployed</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
+
               </SelectContent>
             </Select>
           </div>

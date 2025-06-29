@@ -2,7 +2,6 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [
     "react",
-    "react-hooks",
     "jsx-a11y",
     "nextjs",
     "typescript",

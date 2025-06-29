@@ -17,7 +17,7 @@ interface UseDeploymentBoardReturn {
   isRealTimeConnected: boolean;
   handleStateChange: (
     serviceId: string,
-    action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
+    action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
   ) => Promise<void>;
   refreshData: () => Promise<void>;
   clearDependencyError: () => void;
@@ -127,14 +127,13 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
 
   const handleStateChange = useCallback(async (
     serviceId: string,
-    action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
+    action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
   ) => {
     // Optimistic update mapping
     const optimisticStateMap = {
       ready: 'ready' as const,
       start: 'triggered' as const,
       deployed: 'deployed' as const,
-      failed: 'failed' as const,
       reset_not_ready: 'not_ready' as const,
       reset_ready: 'ready' as const,
       reset_triggered: 'triggered' as const,
@@ -150,7 +149,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
             state: newState,
             updated_at: new Date().toISOString(),
             ...(action === 'start' && { started_at: new Date().toISOString() }),
-            ...((['deployed', 'failed'].includes(action)) && { finished_at: new Date().toISOString() })
+            ...(action === 'deployed' && { finished_at: new Date().toISOString() })
           }
         : d
     ));
@@ -173,12 +172,6 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
           break;
         case 'deployed':
           ({ error } = await supabase.rpc('mark_deployed', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'failed':
-          ({ error } = await supabase.rpc('mark_failed', {
             p_cycle_id: cycleId,
             p_service_id: serviceId,
           }));

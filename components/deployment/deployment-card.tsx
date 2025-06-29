@@ -1,9 +1,8 @@
 'use client';
 
-import { DeploymentView } from '@/lib/supabase';
+import { DeploymentView, TaskItem } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -25,7 +24,7 @@ interface DeploymentCardProps {
     serviceName: string;
     isDeployed: boolean;
   }>;
-  onStateChange: (action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered') => void;
+  onStateChange: (action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered') => void;
 }
 
 export function DeploymentCard({ deployment, dependencies, onStateChange }: DeploymentCardProps) {
@@ -39,8 +38,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
         return <ArrowRight className="h-4 w-4 text-yellow-600" />;
       case 'deployed':
         return null; // No icon for deployed state
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+
       default:
         return null;
     }
@@ -78,11 +76,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
             action: 'deployed' as const,
             variant: 'default' as const,
           },
-          {
-            label: 'Mark Failed',
-            action: 'failed' as const,
-            variant: 'destructive' as const,
-          },
+
           {
             label: 'Reset to Ready',
             action: 'reset_ready' as const,
@@ -114,25 +108,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
           }
         );
         break;
-      case 'failed':
-        actions.push(
-          {
-            label: 'Retry Deployment',
-            action: 'reset_triggered' as const,
-            variant: 'default' as const,
-          },
-          {
-            label: 'Reset to Ready',
-            action: 'reset_ready' as const,
-            variant: 'outline' as const,
-          },
-          {
-            label: 'Reset to Not Ready',
-            action: 'reset_not_ready' as const,
-            variant: 'outline' as const,
-          }
-        );
-        break;
+
     }
 
     return actions;
@@ -179,6 +155,31 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
           </div>
         )}
 
+        {/* Tasks Section */}
+        {deployment.tasks && deployment.tasks.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Square className="h-3 w-3" />
+              Tasks ({deployment.tasks.filter(t => t.completed).length}/{deployment.tasks.length})
+            </div>
+            <div className="space-y-1">
+              {deployment.tasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-2 text-xs">
+                  {task.completed ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <Square className="h-3 w-3 text-slate-400" />
+                  )}
+                  <span className={`${task.completed ? 'line-through text-slate-500' : 'text-slate-600'}`}>
+                    {task.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Separator />
+          </div>
+        )}
+
         {/* Timing Information */}
         <div className="space-y-1 text-xs text-slate-500">
           {deployment.started_at && (
@@ -217,8 +218,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
                   return <ArrowRight className="mr-2 h-4 w-4" />;
                 case 'deployed':
                   return <CheckCircle className="mr-2 h-4 w-4" />;
-                case 'failed':
-                  return <XCircle className="mr-2 h-4 w-4" />;
+
                 case 'reset_triggered':
                   return <RefreshCw className="mr-2 h-4 w-4" />;
                 case 'reset_ready':
@@ -249,7 +249,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
             );
           })}
           
-          {hasUnmetDependencies && (deployment.state === 'ready' || deployment.state === 'deployed' || deployment.state === 'failed') && (
+          {hasUnmetDependencies && (deployment.state === 'ready' || deployment.state === 'deployed') && (
             <div className="text-xs text-amber-600 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" />
               Waiting for dependencies to retry/restart

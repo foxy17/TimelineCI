@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateServiceModal } from '@/components/services/create-service-modal';
 import { CycleDependencyModal } from '@/components/services/cycle-dependency-modal';
+import { CycleTaskModal } from '@/components/services/cycle-task-modal';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Settings, GitBranch, Link as LinkIcon, Calendar, Users, Package, Trash2 } from 'lucide-react';
+import { Plus, GitBranch, Link as LinkIcon, Calendar, Users, Package, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   AlertDialog,
@@ -31,6 +32,7 @@ export function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [dependencyModalOpen, setDependencyModalOpen] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<TenantService | CycleServiceWithState | null>(null);
   const [serviceToRemove, setServiceToRemove] = useState<string | null>(null);
 
@@ -95,6 +97,12 @@ export function ServicesPage() {
   const handleDependenciesUpdated = () => {
     loadCycleData();
     setDependencyModalOpen(false);
+    setSelectedService(null);
+  };
+
+  const handleTasksUpdated = () => {
+    loadCycleData();
+    setTaskModalOpen(false);
     setSelectedService(null);
   };
 
@@ -214,11 +222,24 @@ export function ServicesPage() {
                         size="sm"
                         onClick={() => {
                           setSelectedService(service);
+                          setTaskModalOpen(true);
+                        }}
+                        disabled={!selectedCycleId}
+                        title="Manage Tasks"
+                      >
+                        Tasks
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedService(service);
                           setDependencyModalOpen(true);
                         }}
                         disabled={!selectedCycleId}
+                        title="Manage Dependencies"
                       >
-                        <Settings className="h-4 w-4" />
+                        Dependencies
                       </Button>
                     </div>
                   </CardContent>
@@ -314,7 +335,7 @@ export function ServicesPage() {
                                   <Badge 
                                     variant={
                                       service.deployment_state === 'deployed' ? 'default' :
-                                      service.deployment_state === 'failed' ? 'destructive' :
+                      
                                       service.deployment_state === 'triggered' ? 'secondary' :
                                       'outline'
                                     }
@@ -334,10 +355,22 @@ export function ServicesPage() {
                                   size="sm"
                                   onClick={() => {
                                     setSelectedService(service);
+                                    setTaskModalOpen(true);
+                                  }}
+                                  title="Manage Tasks"
+                                >
+                                  Tasks
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedService(service);
                                     setDependencyModalOpen(true);
                                   }}
+                                  title="Manage Dependencies"
                                 >
-                                  <Settings className="h-4 w-4" />
+                                  Dependencies
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -419,6 +452,16 @@ export function ServicesPage() {
           service={selectedService}
           cycleId={selectedCycleId}
           onSuccess={handleDependenciesUpdated}
+        />
+      )}
+
+      {selectedService && (
+        <CycleTaskModal
+          open={taskModalOpen}
+          onOpenChange={setTaskModalOpen}
+          service={selectedService}
+          cycleId={selectedCycleId}
+          onSuccess={handleTasksUpdated}
         />
       )}
 

@@ -134,31 +134,34 @@ export type Database = {
           id: string;
           cycle_id: string;
           service_id: string;
-          state: 'not_ready' | 'ready' | 'triggered' | 'deployed' | 'failed';
+          state: 'not_ready' | 'ready' | 'triggered' | 'deployed';
           started_at: string | null;
           finished_at: string | null;
           updated_by: string | null;
           updated_at: string;
+          tasks: TaskItem[];
         };
         Insert: {
           id?: string;
           cycle_id: string;
           service_id: string;
-          state?: 'not_ready' | 'ready' | 'triggered' | 'deployed' | 'failed';
+          state?: 'not_ready' | 'ready' | 'triggered' | 'deployed';
           started_at?: string | null;
           finished_at?: string | null;
           updated_by?: string | null;
           updated_at?: string;
+          tasks?: TaskItem[];
         };
         Update: {
           id?: string;
           cycle_id?: string;
           service_id?: string;
-          state?: 'not_ready' | 'ready' | 'triggered' | 'deployed' | 'failed';
+          state?: 'not_ready' | 'ready' | 'triggered' | 'deployed';
           started_at?: string | null;
           finished_at?: string | null;
           updated_by?: string | null;
           updated_at?: string;
+          tasks?: TaskItem[];
         };
       };
       cycle_services: {
@@ -188,7 +191,7 @@ export type Database = {
           id: string;
           cycle_id: string;
           service_id: string;
-          state: 'not_ready' | 'ready' | 'triggered' | 'deployed' | 'failed';
+          state: 'not_ready' | 'ready' | 'triggered' | 'deployed';
           started_at: string | null;
           finished_at: string | null;
           updated_by: string | null;
@@ -199,6 +202,7 @@ export type Database = {
           cycle_created_at: string;
           updated_by_email: string | null;
           added_to_cycle_at: string;
+          tasks: TaskItem[];
         };
       };
     };
@@ -224,13 +228,7 @@ export type Database = {
         };
         Returns: void;
       };
-      mark_failed: {
-        Args: {
-          p_cycle_id: string;
-          p_service_id: string;
-        };
-        Returns: void;
-      };
+
       create_deployment_cycle: {
         Args: {
           p_label: string;
@@ -325,11 +323,59 @@ export type Database = {
           is_active: boolean;
         }[];
       };
+      add_task_to_service: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+          p_task_text: string;
+        };
+        Returns: string;
+      };
+      remove_task_from_service: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+          p_task_id: string;
+        };
+        Returns: void;
+      };
+      update_task_completion: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+          p_task_id: string;
+          p_completed: boolean;
+        };
+        Returns: void;
+      };
+      update_task_text: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+          p_task_id: string;
+          p_task_text: string;
+        };
+        Returns: void;
+      };
+      get_service_tasks: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+        };
+        Returns: TaskItem[];
+      };
     };
   };
 };
 
-export type DeploymentState = 'not_ready' | 'ready' | 'triggered' | 'deployed' | 'failed';
+export type DeploymentState = 'not_ready' | 'ready' | 'triggered' | 'deployed';
+
+export type TaskItem = {
+  id: string;
+  text: string;
+  completed: boolean;
+  created_at: string;
+};
 
 export type ServiceDeployment = Database['public']['Tables']['service_deployments']['Row'];
 export type Microservice = Database['public']['Tables']['microservices']['Row'];

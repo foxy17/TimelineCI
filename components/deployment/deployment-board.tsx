@@ -35,11 +35,7 @@ const stateConfig = {
     color: 'bg-green-50 border-green-200',
     badge: 'default',
   },
-  failed: {
-    label: 'Failed',
-    color: 'bg-red-50 border-red-200',
-    badge: 'destructive',
-  },
+
 } as const;
 
 export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
@@ -96,7 +92,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {Object.entries(stateConfig).map(([state, config]) => (
           <Card key={state} className={`${config.color} min-h-[600px]`}>
             <CardHeader>
