@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase, DeploymentView, DeploymentState, Microservice, MicroserviceDep } from '@/lib/supabase';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DeploymentView, DeploymentState } from '@/lib/supabase';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DeploymentCard } from '@/components/deployment/deployment-card';
 import { DependencyErrorModal } from '@/components/deployment/dependency-error-modal';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { useDeploymentBoard } from '@/hooks/use-deployment-board';
 
 interface DeploymentBoardProps {
   cycleId: string;
@@ -44,253 +43,17 @@ const stateConfig = {
 } as const;
 
 export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
-  const [deployments, setDeployments] = useState<DeploymentView[]>([]);
-  const [services, setServices] = useState<Microservice[]>([]);
-  const [dependencies, setDependencies] = useState<MicroserviceDep[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [cycleLabel, setCycleLabel] = useState('');
-  const [dependencyError, setDependencyError] = useState<{
-    serviceName: string;
-    unmetDeps: { service_name: string; service_id: string }[];
-  } | null>(null);
-  const [isRealTimeConnected, setIsRealTimeConnected] = useState(false);
-
-  useEffect(() => {
-    loadData();
-    const cleanup = setupRealtimeSubscriptions();
-
-    return () => {
-      cleanup();
-    };
-  }, [cycleId]);
-
-  const loadData = async () => {
-    try {
-      // Load deployments
-      const { data: deploymentsData, error: deploymentsError } = await supabase
-        .from('v_deployments')
-        .select('*')
-        .eq('cycle_id', cycleId);
-
-      if (deploymentsError) throw deploymentsError;
-
-      // Load services
-      const { data: servicesData, error: servicesError } = await supabase
-        .from('microservices')
-        .select('*');
-
-      if (servicesError) throw servicesError;
-
-      // Load cycle-specific dependencies
-      const { data: depsData, error: depsError } = await supabase
-        .from('microservice_deps')
-        .select('*')
-        .eq('cycle_id', cycleId);
-
-      if (depsError) throw depsError;
-
-      setDeployments(deploymentsData || []);
-      setServices(servicesData || []);
-      setDependencies(depsData || []);
-      
-      if (deploymentsData && deploymentsData.length > 0) {
-        setCycleLabel(deploymentsData[0].cycle_label);
-      }
-    } catch (error) {
-      toast.error('Failed to load deployment data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setupRealtimeSubscriptions = () => {
-    // Create a single channel for both table subscriptions
-    const channel = supabase
-      .channel(`deployment-updates-${cycleId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'service_deployments',
-          filter: `cycle_id=eq.${cycleId}`,
-        },
-        (payload) => {
-          console.log('Service deployment change:', payload);
-          // Add more detailed logging
-          console.log('Event type:', payload.eventType);
-          console.log('New record:', payload.new);
-          console.log('Old record:', payload.old);
-          loadData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'microservice_deps',
-          filter: `cycle_id=eq.${cycleId}`,
-        },
-        (payload) => {
-          console.log('Microservice dependency change:', payload);
-          console.log('Event type:', payload.eventType);
-          console.log('New record:', payload.new);
-          console.log('Old record:', payload.old);
-          loadData();
-        }
-      )
-      .subscribe((status) => {
-        console.log('Real-time subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          console.log('Successfully subscribed to real-time updates for cycle:', cycleId);
-          setIsRealTimeConnected(true);
-          toast.success('Real-time updates connected');
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('Real-time subscription failed for cycle:', cycleId);
-          setIsRealTimeConnected(false);
-          toast.error('Real-time updates unavailable');
-        } else if (status === 'CLOSED') {
-          console.log('Real-time subscription closed for cycle:', cycleId);
-          setIsRealTimeConnected(false);
-        }
-      });
-
-    return () => {
-      console.log('Cleaning up real-time subscription for cycle:', cycleId);
-      setIsRealTimeConnected(false);
-      supabase.removeChannel(channel);
-    };
-  };
-
-  const handleStateChange = async (
-    serviceId: string,
-    action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
-  ) => {
-    // Optimistic update - immediately update the UI
-    const optimisticStateMap = {
-      ready: 'ready' as const,
-      start: 'triggered' as const,
-      deployed: 'deployed' as const,
-      failed: 'failed' as const,
-      reset_not_ready: 'not_ready' as const,
-      reset_ready: 'ready' as const,
-      reset_triggered: 'triggered' as const,
-    };
-
-    const newState = optimisticStateMap[action];
-    
-    // Optimistically update the deployments state
-    setDeployments(prev => prev.map(d => 
-      d.service_id === serviceId 
-        ? { 
-            ...d, 
-            state: newState,
-            updated_at: new Date().toISOString(),
-            ...(action === 'start' && { started_at: new Date().toISOString() }),
-            ...((['deployed', 'failed'].includes(action)) && { finished_at: new Date().toISOString() })
-          }
-        : d
-    ));
-
-    try {
-      let error;
-
-      switch (action) {
-        case 'ready':
-          ({ error } = await supabase.rpc('set_service_ready', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'start':
-          ({ error } = await supabase.rpc('start_deployment', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'deployed':
-          ({ error } = await supabase.rpc('mark_deployed', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'failed':
-          ({ error } = await supabase.rpc('mark_failed', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_not_ready':
-          ({ error } = await supabase.rpc('reset_service_to_not_ready', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_ready':
-          ({ error } = await supabase.rpc('set_service_ready_flexible', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_triggered':
-          ({ error } = await supabase.rpc('reset_service_to_triggered', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-      }
-
-      if (error) {
-        // Revert optimistic update on error
-        loadData();
-        
-        if (error.message === 'DEPENDENCIES_NOT_DEPLOYED') {
-          // Get unmet dependencies for this cycle
-          const { data: unmetDeps } = await supabase.rpc('get_unmet_dependencies', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          });
-
-          const serviceName = deployments.find(d => d.service_id === serviceId)?.service_name || 'Unknown';
-          setDependencyError({
-            serviceName,
-            unmetDeps: unmetDeps || [],
-          });
-          return;
-        }
-        throw error;
-      }
-
-      toast.success('State updated successfully!');
-      
-      // If real-time is not connected, manually refresh after a short delay
-      if (!isRealTimeConnected) {
-        setTimeout(() => {
-          loadData();
-        }, 1000);
-      }
-      
-    } catch (error: any) {
-      // Revert optimistic update on error
-      loadData();
-      toast.error(error.message || 'Failed to update state');
-    }
-  };
-
-  const getServiceDependencies = (serviceId: string) => {
-    return dependencies
-      .filter(dep => dep.service_id === serviceId)
-      .map(dep => {
-        const depService = services.find(s => s.id === dep.depends_on_service_id);
-        const depDeployment = deployments.find(d => d.service_id === dep.depends_on_service_id);
-        return {
-          ...dep,
-          serviceName: depService?.name || 'Unknown',
-          isDeployed: depDeployment?.state === 'deployed',
-        };
-      });
-  };
+  const {
+    deployments,
+    loading,
+    cycleLabel,
+    dependencyError,
+    isRealTimeConnected,
+    handleStateChange,
+    refreshData,
+    clearDependencyError,
+    getServiceDependencies,
+  } = useDeploymentBoard(cycleId);
 
   if (loading) {
     return <div className="text-center py-8">Loading deployment board...</div>;
@@ -324,10 +87,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => {
-              loadData();
-              toast.success('Data refreshed');
-            }}
+            onClick={refreshData}
             disabled={loading}
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -363,7 +123,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
 
       <DependencyErrorModal
         open={!!dependencyError}
-        onOpenChange={() => setDependencyError(null)}
+        onOpenChange={clearDependencyError}
         serviceName={dependencyError?.serviceName || ''}
         unmetDependencies={dependencyError?.unmetDeps || []}
       />
