@@ -102,7 +102,10 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-lg">
                 {config.label}
-                <Badge variant={config.badge as any}>
+                <Badge 
+                  variant={config.badge as any}
+                  className={state === 'deployed' ? 'bg-green-600 text-white hover:bg-green-700' : ''}
+                >
                   {groupedDeployments[state as DeploymentState]?.length || 0}
                 </Badge>
               </CardTitle>

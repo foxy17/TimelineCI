@@ -38,7 +38,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
       case 'triggered':
         return <ArrowRight className="h-4 w-4 text-yellow-600" />;
       case 'deployed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return null; // No icon for deployed state
       case 'failed':
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
@@ -164,8 +164,8 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
               Dependencies
             </div>
             <div className="space-y-1">
-              {dependencies.map((dep, index) => (
-                <div key={index} className="flex items-center justify-between text-xs">
+              {dependencies.map((dep) => (
+                <div key={dep.serviceName} className="flex items-center justify-between text-xs">
                   <span className="text-slate-600">{dep.serviceName}</span>
                   {dep.isDeployed ? (
                     <CheckCircle className="h-3 w-3 text-green-500" />
@@ -200,28 +200,31 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
 
         {/* Action Buttons */}
         <div className="space-y-2">
-          {getAvailableActions().map((action) => {
+          {getAvailableActions().map((action, index) => {
             // Actions that require dependency validation
             const requiresDependencyCheck = ['start', 'reset_triggered'].includes(action.action);
             const isDisabled = requiresDependencyCheck && hasUnmetDependencies;
+            
+            // Primary actions that should be CTAs
+            const isPrimaryAction = index === 0 && !isDisabled;
             
             // Get icon for each action
             const getActionIcon = () => {
               switch (action.action) {
                 case 'ready':
-                  return <Play className="mr-2 h-3 w-3" />;
+                  return <Play className="mr-2 h-4 w-4" />;
                 case 'start':
-                  return <ArrowRight className="mr-2 h-3 w-3" />;
+                  return <ArrowRight className="mr-2 h-4 w-4" />;
                 case 'deployed':
-                  return <CheckCircle className="mr-2 h-3 w-3" />;
+                  return <CheckCircle className="mr-2 h-4 w-4" />;
                 case 'failed':
-                  return <XCircle className="mr-2 h-3 w-3" />;
+                  return <XCircle className="mr-2 h-4 w-4" />;
                 case 'reset_triggered':
-                  return <RefreshCw className="mr-2 h-3 w-3" />;
+                  return <RefreshCw className="mr-2 h-4 w-4" />;
                 case 'reset_ready':
-                  return <RotateCcw className="mr-2 h-3 w-3" />;
+                  return <RotateCcw className="mr-2 h-4 w-4" />;
                 case 'reset_not_ready':
-                  return <Square className="mr-2 h-3 w-3" />;
+                  return <Square className="mr-2 h-4 w-4" />;
                 default:
                   return null;
               }
@@ -231,8 +234,12 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
               <Button
                 key={action.action}
                 variant={action.variant}
-                size="sm"
-                className="w-full"
+                size={isPrimaryAction ? "default" : "sm"}
+                className={`w-full ${
+                  isPrimaryAction 
+                    ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200" 
+                    : ""
+                }`}
                 onClick={() => onStateChange(action.action)}
                 disabled={isDisabled}
               >
