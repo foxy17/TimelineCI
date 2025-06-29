@@ -109,7 +109,11 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !label.trim()}>
+            <Button 
+              type="submit" 
+              disabled={loading || !label.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:transform-none disabled:hover:scale-100"
+            >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Cycle
             </Button>

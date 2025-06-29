@@ -81,7 +81,7 @@ export function CyclesPage() {
 
   const getCycleStatus = (cycle: DeploymentCycle) => {
     if (cycle.is_active) {
-      return { label: 'Active', variant: 'default' as const, icon: Play };
+      return { label: 'Active', variant: 'default' as const, icon: null }; // No icon for active state
     } else if (cycle.completed_at) {
       return { label: 'Completed', variant: 'outline' as const, icon: CheckCircle };
     } else {
@@ -139,7 +139,10 @@ export function CyclesPage() {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <Button onClick={() => setCreateModalOpen(true)}>
+          <Button 
+            onClick={() => setCreateModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+          >
             <Plus className="mr-2 h-4 w-4" />
             New Cycle
           </Button>
@@ -156,7 +159,10 @@ export function CyclesPage() {
             <p className="text-slate-600 text-center mb-4">
               Create your first deployment cycle to start coordinating releases
             </p>
-            <Button onClick={() => setCreateModalOpen(true)}>
+            <Button 
+              onClick={() => setCreateModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Create First Cycle
             </Button>
@@ -174,7 +180,10 @@ export function CyclesPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{cycle.label}</CardTitle>
-                    <Badge variant={status.variant}>
+                    <Badge 
+                      variant={status.variant}
+                      className={cycle.is_active ? 'bg-green-600 text-white hover:bg-green-700' : ''}
+                    >
                       {StatusIcon && <StatusIcon className="mr-1 h-3 w-3" />}
                       {status.label}
                     </Badge>
@@ -200,9 +209,10 @@ export function CyclesPage() {
                         <Button 
                           variant="secondary" 
                           size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                           onClick={() => handleActivateCycle(cycle.id)}
                         >
-                          <Play className="mr-1 h-3 w-3" />
+                          <Play className="mr-2 h-3 w-3" />
                           Activate
                         </Button>
                       )}
