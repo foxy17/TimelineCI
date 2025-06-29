@@ -19,6 +19,7 @@ interface UseDeploymentBoardReturn {
     serviceId: string,
     action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
   ) => Promise<void>;
+  handleTaskToggle: (serviceId: string, taskId: string, completed: boolean) => Promise<void>;
   refreshData: () => Promise<void>;
   clearDependencyError: () => void;
   getServiceDependencies: (serviceId: string) => Array<{
@@ -141,7 +142,6 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
 
     const newState = optimisticStateMap[action];
     
-    // Optimistically update the deployments state
     setDeployments(prev => prev.map(d => 
       d.service_id === serviceId 
         ? { 
@@ -159,6 +159,18 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
 
       switch (action) {
         case 'ready':
+          // Check if all tasks are completed before allowing transition to ready
+          const deployment = deployments.find(d => d.service_id === serviceId);
+          if (deployment && deployment.tasks && deployment.tasks.length > 0) {
+            const incompleteTasks = deployment.tasks.filter(task => !task.completed);
+            if (incompleteTasks.length > 0) {
+              // Revert optimistic update
+              loadData();
+              toast.error('Please complete all tasks before marking as ready');
+              return;
+            }
+          }
+          
           ({ error } = await supabase.rpc('set_service_ready', {
             p_cycle_id: cycleId,
             p_service_id: serviceId,
@@ -233,6 +245,49 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     }
   }, [cycleId, deployments, isRealTimeConnected, loadData]);
 
+  const handleTaskToggle = useCallback(async (serviceId: string, taskId: string, completed: boolean) => {
+    // Optimistically update the task completion status
+    setDeployments(prev => prev.map(d => 
+      d.service_id === serviceId 
+        ? { 
+            ...d, 
+            tasks: d.tasks.map(task => 
+              task.id === taskId 
+                ? { ...task, completed }
+                : task
+            )
+          }
+        : d
+    ));
+
+    try {
+      const { error } = await supabase.rpc('update_task_completion', {
+        p_cycle_id: cycleId,
+        p_service_id: serviceId,
+        p_task_id: taskId,
+        p_completed: completed
+      });
+
+      if (error) {
+        // Revert optimistic update on error
+        loadData();
+        throw error;
+      }
+
+      // If real-time is not connected, manually refresh after a short delay
+      if (!isRealTimeConnected) {
+        setTimeout(() => {
+          loadData();
+        }, 500);
+      }
+      
+    } catch (error: any) {
+      // Revert optimistic update on error
+      loadData();
+      toast.error(error.message || 'Failed to update task');
+    }
+  }, [cycleId, isRealTimeConnected, loadData]);
+
   const refreshData = useCallback(async () => {
     setLoading(true);
     await loadData();
@@ -275,6 +330,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     dependencyError,
     isRealTimeConnected,
     handleStateChange,
+    handleTaskToggle,
     refreshData,
     clearDependencyError,
     getServiceDependencies,

@@ -46,6 +46,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
     dependencyError,
     isRealTimeConnected,
     handleStateChange,
+    handleTaskToggle,
     refreshData,
     clearDependencyError,
     getServiceDependencies,
@@ -73,23 +74,6 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
           <h1 className="text-3xl font-bold text-slate-900">{cycleLabel}</h1>
           <p className="text-slate-600">Deployment Board - Cycle-Specific Dependencies</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 text-sm">
-            <div className={`w-2 h-2 rounded-full ${isRealTimeConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-slate-600">
-              {isRealTimeConnected ? 'Real-time connected' : 'Real-time disconnected'}
-            </span>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={refreshData}
-            disabled={loading}
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </Button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -113,6 +97,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
                   deployment={deployment}
                   dependencies={getServiceDependencies(deployment.service_id)}
                   onStateChange={(action) => handleStateChange(deployment.service_id, action)}
+                  onTaskToggle={(taskId, completed) => handleTaskToggle(deployment.service_id, taskId, completed)}
                 />
               ))}
             </CardContent>

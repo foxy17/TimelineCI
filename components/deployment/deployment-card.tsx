@@ -4,6 +4,7 @@ import { DeploymentView, TaskItem } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { formatDistanceToNow } from 'date-fns';
 import { 
   Clock, 
@@ -17,6 +18,7 @@ import {
   RotateCcw,
   Square
 } from 'lucide-react';
+import clsx from 'clsx';
 
 interface DeploymentCardProps {
   deployment: DeploymentView;
@@ -25,9 +27,10 @@ interface DeploymentCardProps {
     isDeployed: boolean;
   }>;
   onStateChange: (action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered') => void;
+  onTaskToggle?: (taskId: string, completed: boolean) => void;
 }
 
-export function DeploymentCard({ deployment, dependencies, onStateChange }: DeploymentCardProps) {
+export function DeploymentCard({ deployment, dependencies, onStateChange, onTaskToggle }: DeploymentCardProps) {
   const getStateIcon = (state: string) => {
     switch (state) {
       case 'not_ready':
@@ -159,18 +162,25 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
         {deployment.tasks && deployment.tasks.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <Square className="h-3 w-3" />
               Tasks ({deployment.tasks.filter(t => t.completed).length}/{deployment.tasks.length})
             </div>
             <div className="space-y-1">
               {deployment.tasks.map((task) => (
                 <div key={task.id} className="flex items-center gap-2 text-xs">
-                  {task.completed ? (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  {deployment.state === 'not_ready' && onTaskToggle ? (
+                    <Checkbox
+                      checked={task.completed}
+                      onCheckedChange={(checked) => onTaskToggle(task.id, checked as boolean)}
+                      className="h-4 w-4"
+                    />
                   ) : (
-                    <Square className="h-3 w-3 text-slate-400" />
+                    task.completed ? (
+                      <CheckCircle className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <Square className="h-3 w-3 text-slate-400" />
+                    )
                   )}
-                  <span className={`${task.completed ? 'line-through text-slate-500' : 'text-slate-600'}`}>
+                  <span className={clsx('text-sm', task.completed ? 'line-through text-slate-500' : 'text-slate-600')}>
                     {task.text}
                   </span>
                 </div>
