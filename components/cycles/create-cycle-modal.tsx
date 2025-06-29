@@ -48,7 +48,7 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
 
       if (error) throw error;
 
-      toast.success('Deployment cycle created successfully!');
+      toast.success('Deployment cycle created! Services from the most recent cycle have been automatically added.');
       setLabel('');
       onSuccess();
     } catch (error: any) {
@@ -76,7 +76,7 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
           <DialogTitle>Create New Deployment Cycle</DialogTitle>
           <DialogDescription>
             Create a new deployment cycle to coordinate service releases.
-            All existing services will be added in &quot;not_ready&quot; state.
+            Services from your most recent cycle will be automatically copied over with their dependencies.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -93,6 +93,11 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
                 className="col-span-3"
                 required
               />
+            </div>
+            <div className="bg-blue-50 p-3 rounded-md text-sm">
+              <strong>Note:</strong> All services and dependencies from your most recent cycle 
+              will be automatically added to this new cycle in "not_ready" state. You can add 
+              or remove services later if needed.
             </div>
           </div>
           <DialogFooter>

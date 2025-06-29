@@ -195,3 +195,173 @@ BEGIN
   END LOOP;
 END;
 $$;
+
+-- Function to create new microservice with proper tenant isolation
+CREATE OR REPLACE FUNCTION public.create_microservice(
+  p_name TEXT,
+  p_description TEXT DEFAULT ''
+)
+RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_tenant_id UUID;
+  v_service_id UUID;
+  v_cycle RECORD;
+BEGIN
+  -- Get tenant ID from JWT
+  v_tenant_id := ((current_setting('request.jwt.claims', true))::json->>'tenant_id')::uuid;
+  
+  IF v_tenant_id IS NULL THEN
+    RAISE EXCEPTION 'TENANT_ID_REQUIRED';
+  END IF;
+  
+  -- Create the microservice
+  INSERT INTO microservices (tenant_id, name, description)
+  VALUES (v_tenant_id, p_name, p_description)
+  RETURNING id INTO v_service_id;
+  
+  -- Add service to all existing deployment cycles for this tenant
+  FOR v_cycle IN 
+    SELECT id FROM deployment_cycles WHERE tenant_id = v_tenant_id
+  LOOP
+    INSERT INTO service_deployments (cycle_id, service_id)
+    VALUES (v_cycle.id, v_service_id);
+  END LOOP;
+  
+  RETURN v_service_id;
+END;
+$$;
+
+-- Function to ensure tenant setup and membership
+CREATE OR REPLACE FUNCTION public.ensure_tenant_setup()
+RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_user_id UUID;
+  v_user_email TEXT;
+  v_email_domain TEXT;
+  v_tenant_id UUID;
+  v_existing_member_id UUID;
+BEGIN
+  -- Get current user info
+  v_user_id := auth.uid();
+  
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'USER_NOT_AUTHENTICATED';
+  END IF;
+  
+  -- Get user email from auth.users
+  SELECT email INTO v_user_email 
+  FROM auth.users 
+  WHERE id = v_user_id;
+  
+  IF v_user_email IS NULL THEN
+    RAISE EXCEPTION 'USER_EMAIL_NOT_FOUND';
+  END IF;
+  
+  -- Extract email domain
+  v_email_domain := split_part(v_user_email, '@', 2);
+  
+  -- Find or create tenant based on email domain
+  SELECT id INTO v_tenant_id 
+  FROM tenants 
+  WHERE email_domain = v_email_domain;
+  
+  IF v_tenant_id IS NULL THEN
+    -- Create new tenant
+    INSERT INTO tenants (name, email_domain)
+    VALUES (initcap(replace(v_email_domain, '.', ' ')), v_email_domain)
+    RETURNING id INTO v_tenant_id;
+  END IF;
+  
+  -- Check if user is already a member
+  SELECT id INTO v_existing_member_id
+  FROM tenant_members
+  WHERE tenant_id = v_tenant_id AND user_id = v_user_id;
+  
+  -- Add user as tenant member if not already a member
+  IF v_existing_member_id IS NULL THEN
+    INSERT INTO tenant_members (tenant_id, user_id, role)
+    VALUES (v_tenant_id, v_user_id, 'ADMIN'); -- First user becomes admin
+  END IF;
+  
+  RETURN v_tenant_id;
+END;
+$$;
+
+-- Function to get current user's tenant ID
+CREATE OR REPLACE FUNCTION public.get_current_tenant_id()
+RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_tenant_id UUID;
+BEGIN
+  -- Try to get tenant_id from JWT claims first
+  v_tenant_id := ((current_setting('request.jwt.claims', true))::json->>'tenant_id')::uuid;
+  
+  -- If not in JWT, ensure tenant setup and return tenant_id
+  IF v_tenant_id IS NULL THEN
+    v_tenant_id := ensure_tenant_setup();
+  END IF;
+  
+  RETURN v_tenant_id;
+END;
+$$;
+
+-- Update create_microservice to use the new tenant resolution
+CREATE OR REPLACE FUNCTION public.create_microservice(
+  p_name TEXT,
+  p_description TEXT DEFAULT ''
+)
+RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_tenant_id UUID;
+  v_service_id UUID;
+  v_cycle RECORD;
+BEGIN
+  -- Get or ensure tenant ID
+  v_tenant_id := get_current_tenant_id();
+  
+  -- Create the microservice
+  INSERT INTO microservices (tenant_id, name, description)
+  VALUES (v_tenant_id, p_name, p_description)
+  RETURNING id INTO v_service_id;
+  
+  -- Add service to all existing deployment cycles for this tenant
+  FOR v_cycle IN 
+    SELECT id FROM deployment_cycles WHERE tenant_id = v_tenant_id
+  LOOP
+    INSERT INTO service_deployments (cycle_id, service_id)
+    VALUES (v_cycle.id, v_service_id);
+  END LOOP;
+  
+  RETURN v_service_id;
+END;
+$$;
+
+-- Update create_deployment_cycle to use the new tenant resolution
+CREATE OR REPLACE FUNCTION public.create_deployment_cycle(
+  p_label TEXT
+)
+RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_tenant_id UUID;
+  v_cycle_id UUID;
+  v_service RECORD;
+BEGIN
+  -- Get or ensure tenant ID
+  v_tenant_id := get_current_tenant_id();
+  
+  -- Create the cycle
+  INSERT INTO deployment_cycles (tenant_id, label, created_by)
+  VALUES (v_tenant_id, p_label, auth.uid())
+  RETURNING id INTO v_cycle_id;
+  
+  -- Create service deployment records for all services
+  FOR v_service IN 
+    SELECT id FROM microservices WHERE tenant_id = v_tenant_id
+  LOOP
+    INSERT INTO service_deployments (cycle_id, service_id)
+    VALUES (v_cycle_id, v_service.id);
+  END LOOP;
+  
+  RETURN v_cycle_id;
+END;
+$$;

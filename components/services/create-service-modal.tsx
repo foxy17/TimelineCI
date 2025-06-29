@@ -34,12 +34,10 @@ export function CreateServiceModal({ open, onOpenChange, onSuccess }: CreateServ
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('microservices')
-        .insert({
-          name: name.trim(),
-          description: description.trim(),
-        });
+      const { error } = await supabase.rpc('create_microservice', {
+        p_name: name.trim(),
+        p_description: description.trim(),
+      });
 
       if (error) throw error;
 

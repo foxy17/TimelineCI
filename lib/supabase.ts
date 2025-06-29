@@ -77,18 +77,21 @@ export type Database = {
       microservice_deps: {
         Row: {
           id: string;
+          cycle_id: string;
           service_id: string;
           depends_on_service_id: string;
           created_at: string;
         };
         Insert: {
           id?: string;
+          cycle_id: string;
           service_id: string;
           depends_on_service_id: string;
           created_at?: string;
         };
         Update: {
           id?: string;
+          cycle_id?: string;
           service_id?: string;
           depends_on_service_id?: string;
           created_at?: string;
@@ -101,6 +104,7 @@ export type Database = {
           label: string;
           created_by: string;
           created_at: string;
+          is_active: boolean;
         };
         Insert: {
           id?: string;
@@ -108,6 +112,7 @@ export type Database = {
           label: string;
           created_by?: string;
           created_at?: string;
+          is_active?: boolean;
         };
         Update: {
           id?: string;
@@ -115,6 +120,7 @@ export type Database = {
           label?: string;
           created_by?: string;
           created_at?: string;
+          is_active?: boolean;
         };
       };
       service_deployments: {
@@ -149,6 +155,26 @@ export type Database = {
           updated_at?: string;
         };
       };
+      cycle_services: {
+        Row: {
+          id: string;
+          cycle_id: string;
+          service_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cycle_id: string;
+          service_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          cycle_id?: string;
+          service_id?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       v_deployments: {
@@ -166,6 +192,7 @@ export type Database = {
           cycle_label: string;
           cycle_created_at: string;
           updated_by_email: string | null;
+          added_to_cycle_at: string;
         };
       };
     };
@@ -204,6 +231,13 @@ export type Database = {
         };
         Returns: string;
       };
+      create_microservice: {
+        Args: {
+          p_name: string;
+          p_description?: string;
+        };
+        Returns: string;
+      };
       get_unmet_dependencies: {
         Args: {
           p_cycle_id: string;
@@ -212,6 +246,77 @@ export type Database = {
         Returns: {
           service_name: string;
           service_id: string;
+        }[];
+      };
+      add_service_to_cycle: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+        };
+        Returns: void;
+      };
+      remove_service_from_cycle: {
+        Args: {
+          p_cycle_id: string;
+          p_service_id: string;
+        };
+        Returns: void;
+      };
+      get_tenant_services: {
+        Args: {};
+        Returns: {
+          id: string;
+          name: string;
+          description: string;
+          created_at: string;
+          in_cycles: number;
+        }[];
+      };
+      get_cycle_services: {
+        Args: {
+          p_cycle_id: string;
+        };
+        Returns: {
+          id: string;
+          name: string;
+          description: string;
+          created_at: string;
+          deployment_state: string;
+        }[];
+      };
+      get_available_services_for_cycle: {
+        Args: {
+          p_cycle_id: string;
+        };
+        Returns: {
+          id: string;
+          name: string;
+          description: string;
+          created_at: string;
+        }[];
+      };
+      copy_services_to_cycle: {
+        Args: {
+          p_source_cycle_id: string;
+          p_target_cycle_id: string;
+        };
+        Returns: void;
+      };
+      activate_cycle: {
+        Args: {
+          p_cycle_id: string;
+        };
+        Returns: void;
+      };
+      get_active_cycle: {
+        Args: {};
+        Returns: {
+          id: string;
+          tenant_id: string;
+          label: string;
+          created_by: string;
+          created_at: string;
+          is_active: boolean;
         }[];
       };
     };
@@ -224,4 +329,22 @@ export type ServiceDeployment = Database['public']['Tables']['service_deployment
 export type Microservice = Database['public']['Tables']['microservices']['Row'];
 export type DeploymentCycle = Database['public']['Tables']['deployment_cycles']['Row'];
 export type MicroserviceDep = Database['public']['Tables']['microservice_deps']['Row'];
+export type CycleService = Database['public']['Tables']['cycle_services']['Row'];
 export type DeploymentView = Database['public']['Views']['v_deployments']['Row'];
+
+// Extended types for the new functions
+export type TenantService = {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  in_cycles: number;
+};
+
+export type CycleServiceWithState = {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  deployment_state: string;
+};

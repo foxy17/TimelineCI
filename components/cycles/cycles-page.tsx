@@ -41,6 +41,21 @@ export function CyclesPage() {
     setCreateModalOpen(false);
   };
 
+  const handleActivateCycle = async (cycleId: string) => {
+    try {
+      const { error } = await supabase.rpc('activate_cycle', {
+        p_cycle_id: cycleId,
+      });
+
+      if (error) throw error;
+
+      toast.success('Cycle activated successfully!');
+      loadCycles();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to activate cycle');
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading cycles...</div>;
   }
@@ -83,7 +98,9 @@ export function CyclesPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{cycle.label}</CardTitle>
-                  <Badge variant="outline">Active</Badge>
+                  <Badge variant={cycle.is_active ? "default" : "outline"}>
+                    {cycle.is_active ? "Active" : "Inactive"}
+                  </Badge>
                 </div>
                 <CardDescription>
                   Created {formatDistanceToNow(new Date(cycle.created_at))} ago
@@ -95,12 +112,23 @@ export function CyclesPage() {
                     <Calendar className="inline h-4 w-4 mr-1" />
                     {new Date(cycle.created_at).toLocaleDateString()}
                   </div>
-                  <Link href={`/dashboard/cycles/${cycle.id}`}>
-                    <Button variant="outline" size="sm">
-                      View Board
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <div className="flex gap-2">
+                    {!cycle.is_active && (
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        onClick={() => handleActivateCycle(cycle.id)}
+                      >
+                        Activate
+                      </Button>
+                    )}
+                    <Link href={`/dashboard/cycles/${cycle.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Board
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, Microservice, MicroserviceDep, DeploymentCycle } from '@/lib/supabase';
+import { supabase, TenantService, CycleServiceWithState, DeploymentCycle } from '@/lib/supabase';
 import {
   Dialog,
   DialogContent,
@@ -20,10 +20,8 @@ import { Loader2, Copy } from 'lucide-react';
 interface CycleDependencyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  service: Microservice;
-  allServices: Microservice[];
-  cycles: DeploymentCycle[];
-  selectedCycleId: string;
+  service: TenantService | CycleServiceWithState;
+  cycleId: string;
   onSuccess: () => void;
 }
 
@@ -31,35 +29,61 @@ export function CycleDependencyModal({
   open,
   onOpenChange,
   service,
-  allServices,
-  cycles,
-  selectedCycleId,
+  cycleId,
   onSuccess,
 }: CycleDependencyModalProps) {
   const [selectedDependencies, setSelectedDependencies] = useState<string[]>([]);
+  const [availableServices, setAvailableServices] = useState<CycleServiceWithState[]>([]);
+  const [cycles, setCycles] = useState<DeploymentCycle[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentCycleId, setCurrentCycleId] = useState(selectedCycleId);
+  const [currentCycleId, setCurrentCycleId] = useState(cycleId);
   const [copyFromCycleId, setCopyFromCycleId] = useState<string>('');
 
   useEffect(() => {
+    if (open) {
+      loadCycles();
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (open && currentCycleId) {
-      loadDependencies();
+      loadCycleData();
     }
   }, [open, currentCycleId, service.id]);
 
-  const loadDependencies = async () => {
+  const loadCycles = async () => {
     try {
       const { data, error } = await supabase
-        .from('microservice_deps')
-        .select('depends_on_service_id')
-        .eq('cycle_id', currentCycleId)
-        .eq('service_id', service.id);
+        .from('deployment_cycles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      setSelectedDependencies(data?.map(dep => dep.depends_on_service_id) || []);
+      setCycles(data || []);
     } catch (error) {
-      toast.error('Failed to load dependencies');
+      toast.error('Failed to load cycles');
+    }
+  };
+
+  const loadCycleData = async () => {
+    try {
+      const [servicesRes, depsRes] = await Promise.all([
+        supabase.rpc('get_cycle_services', { p_cycle_id: currentCycleId }),
+        supabase
+          .from('microservice_deps')
+          .select('depends_on_service_id')
+          .eq('cycle_id', currentCycleId)
+          .eq('service_id', service.id)
+      ]);
+
+      if (servicesRes.error) throw servicesRes.error;
+      if (depsRes.error) throw depsRes.error;
+
+      // Filter out the current service from available services
+      setAvailableServices((servicesRes.data || []).filter(s => s.id !== service.id));
+      setSelectedDependencies(depsRes.data?.map(dep => dep.depends_on_service_id) || []);
+    } catch (error) {
+      toast.error('Failed to load cycle data');
     }
   };
 
@@ -97,7 +121,12 @@ export function CycleDependencyModal({
 
       if (error) throw error;
 
-      setSelectedDependencies(data?.map(dep => dep.depends_on_service_id) || []);
+      // Only include dependencies that exist in the current cycle
+      const validDependencies = (data || [])
+        .map(dep => dep.depends_on_service_id)
+        .filter(depId => availableServices.some(s => s.id === depId));
+
+      setSelectedDependencies(validDependencies);
       toast.success('Dependencies copied from selected cycle');
     } catch (error) {
       toast.error('Failed to copy dependencies');
@@ -112,7 +141,6 @@ export function CycleDependencyModal({
     );
   };
 
-  const availableServices = allServices.filter(s => s.id !== service.id);
   const otherCycles = cycles.filter(c => c.id !== currentCycleId);
 
   return (
@@ -122,7 +150,7 @@ export function CycleDependencyModal({
           <DialogTitle>Manage Dependencies - {service.name}</DialogTitle>
           <DialogDescription>
             Configure which services {service.name} depends on for the selected deployment cycle.
-            Dependencies are specific to each cycle.
+            Only services participating in the cycle can be selected as dependencies.
           </DialogDescription>
         </DialogHeader>
         
@@ -179,7 +207,7 @@ export function CycleDependencyModal({
               <Label className="text-base font-medium">Dependencies for this cycle</Label>
               <div className="space-y-3 max-h-60 overflow-y-auto border rounded-md p-3">
                 {availableServices.length === 0 ? (
-                  <p className="text-sm text-slate-500">No other services available</p>
+                  <p className="text-sm text-slate-500">No other services available in this cycle</p>
                 ) : (
                   availableServices.map((availableService) => {
                     const isSelected = selectedDependencies.includes(availableService.id);
@@ -214,8 +242,8 @@ export function CycleDependencyModal({
             </div>
 
             <div className="text-sm text-slate-600 bg-blue-50 p-3 rounded-md">
-              <strong>Note:</strong> Dependencies are cycle-specific. This service will only 
-              wait for the selected dependencies within the chosen deployment cycle.
+              <strong>Note:</strong> Dependencies are cycle-specific and can only be set between 
+              services that participate in the same deployment cycle.
             </div>
           </div>
           
