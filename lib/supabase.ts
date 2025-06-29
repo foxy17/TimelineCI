@@ -105,6 +105,8 @@ export type Database = {
           created_by: string;
           created_at: string;
           is_active: boolean;
+          completed_at: string | null;
+          completed_by: string | null;
         };
         Insert: {
           id?: string;
@@ -113,6 +115,8 @@ export type Database = {
           created_by?: string;
           created_at?: string;
           is_active?: boolean;
+          completed_at?: string | null;
+          completed_by?: string | null;
         };
         Update: {
           id?: string;
@@ -121,6 +125,8 @@ export type Database = {
           created_by?: string;
           created_at?: string;
           is_active?: boolean;
+          completed_at?: string | null;
+          completed_by?: string | null;
         };
       };
       service_deployments: {

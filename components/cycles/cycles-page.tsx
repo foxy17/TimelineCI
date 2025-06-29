@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateCycleModal } from '@/components/cycles/create-cycle-modal';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, ArrowRight } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Plus, Calendar, ArrowRight, CheckCircle, Play } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -15,6 +16,7 @@ export function CyclesPage() {
   const [cycles, setCycles] = useState<DeploymentCycle[]>([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [completingCycle, setCompletingCycle] = useState<string | null>(null);
 
   useEffect(() => {
     loadCycles();
@@ -56,9 +58,48 @@ export function CyclesPage() {
     }
   };
 
+  const handleCompleteCycle = async () => {
+    if (!completingCycle) return;
+
+    try {
+      const { error } = await supabase.rpc('complete_active_cycle');
+
+      if (error) throw error;
+
+      toast.success('Cycle completed successfully!');
+      loadCycles();
+    } catch (error: any) {
+      if (error.message === 'NO_ACTIVE_CYCLE') {
+        toast.error('No active cycle to complete');
+      } else {
+        toast.error(error.message || 'Failed to complete cycle');
+      }
+    } finally {
+      setCompletingCycle(null);
+    }
+  };
+
+  const getCycleStatus = (cycle: DeploymentCycle) => {
+    if (cycle.is_active) {
+      return { label: 'Active', variant: 'default' as const, icon: Play };
+    } else if (cycle.completed_at) {
+      return { label: 'Completed', variant: 'outline' as const, icon: CheckCircle };
+    } else {
+      return { label: 'Inactive', variant: 'secondary' as const, icon: null };
+    }
+  };
+
+  const formatCompletionInfo = (cycle: DeploymentCycle) => {
+    if (!cycle.completed_at) return null;
+    
+    return `Completed ${formatDistanceToNow(new Date(cycle.completed_at))} ago`;
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading cycles...</div>;
   }
+
+  const activeCycle = cycles.find(c => c.is_active);
 
   return (
     <div className="space-y-6">
@@ -69,10 +110,40 @@ export function CyclesPage() {
             Manage deployment coordination and dependency tracking
           </p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Cycle
-        </Button>
+        <div className="flex gap-2">
+          {activeCycle && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" onClick={() => setCompletingCycle(activeCycle.id)}>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Complete Active Cycle
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Complete Deployment Cycle</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to complete the active cycle "{activeCycle.label}"? 
+                    This will mark it as inactive and you'll need to create a new cycle or activate 
+                    an existing one to continue deployments.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setCompletingCycle(null)}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCompleteCycle}>
+                    Complete Cycle
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Button onClick={() => setCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Cycle
+          </Button>
+        </div>
       </div>
 
       {cycles.length === 0 ? (
@@ -93,46 +164,60 @@ export function CyclesPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cycles.map((cycle) => (
-            <Card key={cycle.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{cycle.label}</CardTitle>
-                  <Badge variant={cycle.is_active ? "default" : "outline"}>
-                    {cycle.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-                <CardDescription>
-                  Created {formatDistanceToNow(new Date(cycle.created_at))} ago
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-slate-600">
-                    <Calendar className="inline h-4 w-4 mr-1" />
-                    {new Date(cycle.created_at).toLocaleDateString()}
+          {cycles.map((cycle) => {
+            const status = getCycleStatus(cycle);
+            const completionInfo = formatCompletionInfo(cycle);
+            const StatusIcon = status.icon;
+            
+            return (
+              <Card key={cycle.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{cycle.label}</CardTitle>
+                    <Badge variant={status.variant}>
+                      {StatusIcon && <StatusIcon className="mr-1 h-3 w-3" />}
+                      {status.label}
+                    </Badge>
                   </div>
-                  <div className="flex gap-2">
-                    {!cycle.is_active && (
-                      <Button 
-                        variant="secondary" 
-                        size="sm"
-                        onClick={() => handleActivateCycle(cycle.id)}
-                      >
-                        Activate
-                      </Button>
+                  <CardDescription>
+                    Created {formatDistanceToNow(new Date(cycle.created_at))} ago
+                    {completionInfo && (
+                      <>
+                        <br />
+                        {completionInfo}
+                      </>
                     )}
-                    <Link href={`/dashboard/cycles/${cycle.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Board
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-slate-600">
+                      <Calendar className="inline h-4 w-4 mr-1" />
+                      {new Date(cycle.created_at).toLocaleDateString()}
+                    </div>
+                    <div className="flex gap-2">
+                      {!cycle.is_active && (
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => handleActivateCycle(cycle.id)}
+                        >
+                          <Play className="mr-1 h-3 w-3" />
+                          Activate
+                        </Button>
+                      )}
+                      <Link href={`/dashboard/cycles/${cycle.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Board
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
