@@ -126,7 +126,7 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
 
   const handleStateChange = async (
     serviceId: string,
-    action: 'ready' | 'start' | 'deployed' | 'failed'
+    action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
   ) => {
     try {
       let error;
@@ -152,6 +152,24 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
           break;
         case 'failed':
           ({ error } = await supabase.rpc('mark_failed', {
+            p_cycle_id: cycleId,
+            p_service_id: serviceId,
+          }));
+          break;
+        case 'reset_not_ready':
+          ({ error } = await supabase.rpc('reset_service_to_not_ready', {
+            p_cycle_id: cycleId,
+            p_service_id: serviceId,
+          }));
+          break;
+        case 'reset_ready':
+          ({ error } = await supabase.rpc('set_service_ready_flexible', {
+            p_cycle_id: cycleId,
+            p_service_id: serviceId,
+          }));
+          break;
+        case 'reset_triggered':
+          ({ error } = await supabase.rpc('reset_service_to_triggered', {
             p_cycle_id: cycleId,
             p_service_id: serviceId,
           }));

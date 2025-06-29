@@ -13,7 +13,10 @@ import {
   Play, 
   ArrowRight,
   AlertTriangle,
-  Link as LinkIcon
+  Link as LinkIcon,
+  RefreshCw,
+  RotateCcw,
+  Square
 } from 'lucide-react';
 
 interface DeploymentCardProps {
@@ -22,7 +25,7 @@ interface DeploymentCardProps {
     serviceName: string;
     isDeployed: boolean;
   }>;
-  onStateChange: (action: 'ready' | 'start' | 'deployed' | 'failed') => void;
+  onStateChange: (action: 'ready' | 'start' | 'deployed' | 'failed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered') => void;
 }
 
 export function DeploymentCard({ deployment, dependencies, onStateChange }: DeploymentCardProps) {
@@ -55,11 +58,18 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
         });
         break;
       case 'ready':
-        actions.push({
-          label: 'Start Deploy',
-          action: 'start' as const,
-          variant: 'default' as const,
-        });
+        actions.push(
+          {
+            label: 'Start Deploy',
+            action: 'start' as const,
+            variant: 'default' as const,
+          },
+          {
+            label: 'Reset to Not Ready',
+            action: 'reset_not_ready' as const,
+            variant: 'outline' as const,
+          }
+        );
         break;
       case 'triggered':
         actions.push(
@@ -72,6 +82,54 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
             label: 'Mark Failed',
             action: 'failed' as const,
             variant: 'destructive' as const,
+          },
+          {
+            label: 'Reset to Ready',
+            action: 'reset_ready' as const,
+            variant: 'outline' as const,
+          },
+          {
+            label: 'Reset to Not Ready',
+            action: 'reset_not_ready' as const,
+            variant: 'outline' as const,
+          }
+        );
+        break;
+      case 'deployed':
+        actions.push(
+          {
+            label: 'Restart Deployment',
+            action: 'reset_triggered' as const,
+            variant: 'default' as const,
+          },
+          {
+            label: 'Reset to Ready',
+            action: 'reset_ready' as const,
+            variant: 'outline' as const,
+          },
+          {
+            label: 'Reset to Not Ready',
+            action: 'reset_not_ready' as const,
+            variant: 'outline' as const,
+          }
+        );
+        break;
+      case 'failed':
+        actions.push(
+          {
+            label: 'Retry Deployment',
+            action: 'reset_triggered' as const,
+            variant: 'default' as const,
+          },
+          {
+            label: 'Reset to Ready',
+            action: 'reset_ready' as const,
+            variant: 'outline' as const,
+          },
+          {
+            label: 'Reset to Not Ready',
+            action: 'reset_not_ready' as const,
+            variant: 'outline' as const,
           }
         );
         break;
@@ -142,23 +200,52 @@ export function DeploymentCard({ deployment, dependencies, onStateChange }: Depl
 
         {/* Action Buttons */}
         <div className="space-y-2">
-          {getAvailableActions().map((action) => (
-            <Button
-              key={action.action}
-              variant={action.variant}
-              size="sm"
-              className="w-full"
-              onClick={() => onStateChange(action.action)}
-              disabled={action.action === 'start' && hasUnmetDependencies}
-            >
-              {action.label}
-            </Button>
-          ))}
+          {getAvailableActions().map((action) => {
+            // Actions that require dependency validation
+            const requiresDependencyCheck = ['start', 'reset_triggered'].includes(action.action);
+            const isDisabled = requiresDependencyCheck && hasUnmetDependencies;
+            
+            // Get icon for each action
+            const getActionIcon = () => {
+              switch (action.action) {
+                case 'ready':
+                  return <Play className="mr-2 h-3 w-3" />;
+                case 'start':
+                  return <ArrowRight className="mr-2 h-3 w-3" />;
+                case 'deployed':
+                  return <CheckCircle className="mr-2 h-3 w-3" />;
+                case 'failed':
+                  return <XCircle className="mr-2 h-3 w-3" />;
+                case 'reset_triggered':
+                  return <RefreshCw className="mr-2 h-3 w-3" />;
+                case 'reset_ready':
+                  return <RotateCcw className="mr-2 h-3 w-3" />;
+                case 'reset_not_ready':
+                  return <Square className="mr-2 h-3 w-3" />;
+                default:
+                  return null;
+              }
+            };
+            
+            return (
+              <Button
+                key={action.action}
+                variant={action.variant}
+                size="sm"
+                className="w-full"
+                onClick={() => onStateChange(action.action)}
+                disabled={isDisabled}
+              >
+                {getActionIcon()}
+                {action.label}
+              </Button>
+            );
+          })}
           
-          {hasUnmetDependencies && deployment.state === 'ready' && (
+          {hasUnmetDependencies && (deployment.state === 'ready' || deployment.state === 'deployed' || deployment.state === 'failed') && (
             <div className="text-xs text-amber-600 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" />
-              Waiting for dependencies
+              Waiting for dependencies to retry/restart
             </div>
           )}
         </div>
