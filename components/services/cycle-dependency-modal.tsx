@@ -80,7 +80,7 @@ export function CycleDependencyModal({
       if (depsRes.error) throw depsRes.error;
 
       // Filter out the current service from available services
-      setAvailableServices((servicesRes.data || []).filter(s => s.id !== service.id));
+      setAvailableServices((servicesRes.data || []).filter((s: CycleServiceWithState) => s.id !== service.id));
       setSelectedDependencies(depsRes.data?.map(dep => dep.depends_on_service_id) || []);
     } catch (error) {
       toast.error('Failed to load cycle data');
