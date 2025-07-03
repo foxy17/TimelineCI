@@ -13,11 +13,31 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    
+    if (!email.endsWith('@clootrack.com')) {
+      return 'Only clootrack.com email addresses are allowed';
+    }
+    
+    return null;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const validationError = validateEmail(email);
+      if (validationError) {
+        toast.error(validationError);
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -45,7 +65,7 @@ export function LoginForm() {
           Sign In
         </CardTitle>
         <CardDescription>
-          Enter your email to receive a magic link
+          Enter your clootrack.com email to receive a magic link
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,7 +75,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="you@company.com"
+              placeholder="you@clootrack.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

@@ -1,19 +1,28 @@
-import { LoginForm } from '@/components/auth/login-form';
+'use client';
+
+import { useAuth } from '@/components/auth/auth-provider';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        router.push('/dashboard');
+      } else {
+        router.push('/auth/login');
+      }
+    }
+  }, [user, loading, router]);
+
+  // Show loading state while auth is being determined
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Deployment Dashboard
-          </h1>
-          <p className="text-slate-600">
-            Coordinate deployments with dependency-aware orchestration
-          </p>
-        </div>
-        <LoginForm />
-      </div>
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin" />
     </div>
   );
 }

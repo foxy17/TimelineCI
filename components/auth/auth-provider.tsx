@@ -40,8 +40,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
+      // Handle initial routing
       if (!session) {
-        router.push('/');
+        // Only redirect to login if not already on auth pages
+        if (!pathname.startsWith('/auth/')) {
+          router.push('/auth/login');
+        }
+      } else if (pathname === '/' || pathname === '/auth/login') {
+        // Redirect authenticated users away from login pages
+        router.push('/dashboard');
       }
     });
 
@@ -54,9 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
 
       if (!session) {
-        router.push('/');
-      } else if (event === 'SIGNED_IN' && pathname === '/') {
-        // Only redirect to dashboard when user actually signs in from the login page
+        // Only redirect to login if not already on auth pages
+        if (!pathname.startsWith('/auth/')) {
+          router.push('/auth/login');
+        }
+      } else if (event === 'SIGNED_IN') {
+        // Redirect to dashboard when user signs in
         router.push('/dashboard');
       }
       // For other events (like TOKEN_REFRESHED), preserve the current URL
@@ -70,6 +80,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
+    );
+  }
+
+  // Allow access to auth pages even when not authenticated
+  if (!user && pathname.startsWith('/auth/')) {
+    return (
+      <AuthContext.Provider value={{ user, session, loading }}>
+        {children}
+      </AuthContext.Provider>
     );
   }
 
