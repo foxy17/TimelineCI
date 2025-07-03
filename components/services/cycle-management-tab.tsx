@@ -28,16 +28,14 @@ export function CycleManagementTab({
   onAddService,
   onManageTasks,
   onManageDependencies,
-  onRemoveService
+  onRemoveService,
 }: CycleManagementTabProps) {
   if (cycles.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Calendar className="h-12 w-12 text-slate-400 mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">
-            No deployment cycles
-          </h3>
+          <h3 className="text-lg font-medium text-slate-900 mb-2">No deployment cycles</h3>
           <p className="text-slate-600 text-center mb-4">
             Create a deployment cycle to start managing service deployments
           </p>
@@ -63,13 +61,10 @@ export function CycleManagementTab({
             onManageDependencies={onManageDependencies}
             onRemoveService={onRemoveService}
           />
-          
-          <AvailableServices
-            availableServices={availableServices}
-            onAddService={onAddService}
-          />
+
+          <AvailableServices availableServices={availableServices} onAddService={onAddService} />
         </div>
       )}
     </div>
   );
-} 
+}

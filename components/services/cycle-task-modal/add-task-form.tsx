@@ -21,9 +21,9 @@ export function AddTaskForm({ newTaskText, setNewTaskText, onAddTask }: AddTaskF
           ref={textareaRef}
           placeholder="Add a new task... (supports markdown: **bold**, *italic*, `code`, ~~strikethrough~~, lists, etc.)"
           value={newTaskText}
-          onChange={(e) => setNewTaskText(e.target.value)}
+          onChange={e => setNewTaskText(e.target.value)}
           className="flex-1 min-h-[40px] resize-none overflow-hidden"
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
               e.preventDefault();
               onAddTask();
@@ -45,4 +45,4 @@ export function AddTaskForm({ newTaskText, setNewTaskText, onAddTask }: AddTaskF
       </p>
     </div>
   );
-} 
+}

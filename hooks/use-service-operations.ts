@@ -60,4 +60,4 @@ export function useServiceOperations() {
     removeServiceFromCycle,
     confirmRemoveService,
   };
-} 
+}

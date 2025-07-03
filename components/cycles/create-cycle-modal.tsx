@@ -49,7 +49,9 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
 
       if (error) throw error;
 
-      toast.success('Deployment cycle created! Services from the most recent cycle have been automatically added.');
+      toast.success(
+        'Deployment cycle created! Services from the most recent cycle have been automatically added.'
+      );
       setLabel('');
       onSuccess();
     } catch (error: any) {
@@ -76,8 +78,8 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
         <DialogHeader>
           <DialogTitle>Create New Deployment Cycle</DialogTitle>
           <DialogDescription>
-            Create a new deployment cycle to coordinate service releases.
-            Services from your most recent cycle will be automatically copied over with their dependencies.
+            Create a new deployment cycle to coordinate service releases. Services from your most
+            recent cycle will be automatically copied over with their dependencies.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -89,15 +91,15 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
               <Input
                 id="label"
                 value={label}
-                onChange={(e) => setLabel(e.target.value)}
+                onChange={e => setLabel(e.target.value)}
                 placeholder="e.g., 2025-W28"
                 className="col-span-3"
                 required
               />
             </div>
             <div className="bg-blue-50 p-3 rounded-md text-sm">
-              <strong>Note:</strong> All services and dependencies from your most recent cycle 
-              will be automatically added to this new cycle in &ldquo;not_ready&rdquo; state. You can add 
+              <strong>Note:</strong> All services and dependencies from your most recent cycle will
+              be automatically added to this new cycle in &ldquo;not_ready&rdquo; state. You can add
               or remove services later if needed.
             </div>
           </div>
@@ -110,8 +112,8 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || !label.trim()}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:transform-none disabled:hover:scale-100"
             >

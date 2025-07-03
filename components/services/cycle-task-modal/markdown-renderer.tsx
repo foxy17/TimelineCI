@@ -19,7 +19,9 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>
           ),
           pre: ({ children }) => (
-            <pre className="bg-gray-100 p-2 rounded text-sm font-mono overflow-x-auto">{children}</pre>
+            <pre className="bg-gray-100 p-2 rounded text-sm font-mono overflow-x-auto">
+              {children}
+            </pre>
           ),
           strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
           em: ({ children }) => <em className="italic">{children}</em>,
@@ -31,8 +33,8 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             <blockquote className="border-l-4 border-gray-300 pl-4 italic">{children}</blockquote>
           ),
           a: ({ href, children }) => (
-            <a 
-              href={href} 
+            <a
+              href={href}
               className="text-blue-600 hover:text-blue-800 underline underline-offset-2 hover:underline-offset-4 transition-all duration-200"
               target="_blank"
               rel="noopener noreferrer"
@@ -46,4 +48,4 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       </ReactMarkdown>
     </div>
   );
-} 
+}

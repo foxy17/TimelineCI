@@ -38,4 +38,4 @@ export function useCycleServices(selectedCycleId: string) {
     availableServices,
     refetch: loadCycleData,
   };
-} 
+}

@@ -7,7 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateCycleModal } from '@/components/cycles/create-cycle-modal';
 import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Plus, Calendar, ArrowRight, CheckCircle, Play } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -95,7 +105,7 @@ export function CyclesPage() {
 
   const formatCompletionInfo = (cycle: DeploymentCycle) => {
     if (!cycle.completed_at) return null;
-    
+
     return `Completed ${formatDistanceToNow(new Date(cycle.completed_at))} ago`;
   };
 
@@ -127,9 +137,9 @@ export function CyclesPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Complete Deployment Cycle</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to complete the active cycle &ldquo;{activeCycle.label}&rdquo;? 
-                    This will mark it as inactive and you&apos;ll need to create a new cycle or activate 
-                    an existing one to continue deployments.
+                    Are you sure you want to complete the active cycle &ldquo;{activeCycle.label}
+                    &rdquo;? This will mark it as inactive and you&apos;ll need to create a new
+                    cycle or activate an existing one to continue deployments.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -143,7 +153,7 @@ export function CyclesPage() {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <Button 
+          <Button
             onClick={() => setCreateModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
@@ -157,13 +167,11 @@ export function CyclesPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Calendar className="h-12 w-12 text-slate-400 mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">
-              No deployment cycles yet
-            </h3>
+            <h3 className="text-lg font-medium text-slate-900 mb-2">No deployment cycles yet</h3>
             <p className="text-slate-600 text-center mb-4">
               Create your first deployment cycle to start coordinating releases
             </p>
-            <Button 
+            <Button
               onClick={() => setCreateModalOpen(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
             >
@@ -174,19 +182,21 @@ export function CyclesPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cycles.map((cycle) => {
+          {cycles.map(cycle => {
             const status = getCycleStatus(cycle);
             const completionInfo = formatCompletionInfo(cycle);
             const StatusIcon = status.icon;
-            
+
             return (
               <Card key={cycle.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{cycle.label}</CardTitle>
-                    <Badge 
+                    <Badge
                       variant={status.variant}
-                      className={cycle.is_active ? 'bg-green-600 text-white hover:bg-green-700' : ''}
+                      className={
+                        cycle.is_active ? 'bg-green-600 text-white hover:bg-green-700' : ''
+                      }
                     >
                       {StatusIcon && <StatusIcon className="mr-1 h-3 w-3" />}
                       {status.label}
@@ -210,8 +220,8 @@ export function CyclesPage() {
                     </div>
                     <div className="flex gap-2">
                       {!cycle.is_active && (
-                        <Button 
-                          variant="secondary" 
+                        <Button
+                          variant="secondary"
                           size="sm"
                           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                           onClick={() => handleActivateCycle(cycle.id)}

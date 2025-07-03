@@ -51,9 +51,9 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
 
   const loadTasks = async () => {
     try {
-      const { data, error } = await createClient().rpc('get_service_tasks', { 
-        p_cycle_id: currentCycleId, 
-        p_service_id: service.id 
+      const { data, error } = await createClient().rpc('get_service_tasks', {
+        p_cycle_id: currentCycleId,
+        p_service_id: service.id,
       });
 
       if (error) throw error;
@@ -70,7 +70,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
       const { data: taskId, error } = await createClient().rpc('add_task_to_service', {
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
-        p_task_text: newTaskText.trim()
+        p_task_text: newTaskText.trim(),
       });
 
       if (error) throw error;
@@ -88,7 +88,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
       const { error } = await createClient().rpc('remove_task_from_service', {
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
-        p_task_id: taskId
+        p_task_id: taskId,
       });
 
       if (error) throw error;
@@ -113,7 +113,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
         p_task_id: editingTaskId,
-        p_task_text: editTaskText.trim()
+        p_task_text: editTaskText.trim(),
       });
 
       if (error) throw error;
@@ -147,12 +147,12 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
     editingTaskId,
     editTaskText,
     showNote,
-    
+
     // Setters
     setNewTaskText,
     setCurrentCycleId,
     setEditTaskText,
-    
+
     // Actions
     handleAddTask,
     handleRemoveTask,
@@ -161,4 +161,4 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
     handleCancelEdit,
     handleHideNote,
   };
-} 
+}

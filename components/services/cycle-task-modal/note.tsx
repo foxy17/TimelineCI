@@ -17,8 +17,9 @@ export function Note({ onHide }: NoteProps) {
       >
         <X className="h-4 w-4" />
       </Button>
-      <strong>Note:</strong> Tasks help track what needs to be done before a service can be marked as ready. 
-      You can use full markdown formatting including lists, code blocks, headers, and more.
+      <strong>Note:</strong> Tasks help track what needs to be done before a service can be marked
+      as ready. You can use full markdown formatting including lists, code blocks, headers, and
+      more.
     </div>
   );
-} 
+}

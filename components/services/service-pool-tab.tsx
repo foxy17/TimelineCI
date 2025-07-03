@@ -15,9 +15,7 @@ export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolT
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Package className="h-12 w-12 text-slate-400 mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">
-            No services in pool
-          </h3>
+          <h3 className="text-lg font-medium text-slate-900 mb-2">No services in pool</h3>
           <p className="text-slate-600 text-center mb-4">
             Create your first service to start building your deployment pool
           </p>
@@ -32,7 +30,7 @@ export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolT
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {tenantServices.map((service) => (
+      {tenantServices.map(service => (
         <Card key={service.id} className="hover:shadow-md transition-shadow">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -41,9 +39,7 @@ export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolT
                 {service.in_cycles} cycle{service.in_cycles !== 1 ? 's' : ''}
               </Badge>
             </div>
-            {service.description && (
-              <CardDescription>{service.description}</CardDescription>
-            )}
+            {service.description && <CardDescription>{service.description}</CardDescription>}
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between text-sm text-slate-600">
@@ -54,4 +50,4 @@ export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolT
       ))}
     </div>
   );
-} 
+}

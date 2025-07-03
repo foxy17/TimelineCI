@@ -91,11 +91,9 @@ export function DeploymentConfirmationModal({
             {config.icon}
             {config.title}
           </DialogTitle>
-          <DialogDescription>
-            {config.description}
-          </DialogDescription>
+          <DialogDescription>{config.description}</DialogDescription>
         </DialogHeader>
-        
+
         <div className="py-4">
           <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-md border border-amber-200">
             <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
@@ -114,4 +112,4 @@ export function DeploymentConfirmationModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -27,15 +27,19 @@ export function TaskList({
     return (
       <div className="text-center py-8">
         <Square className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-        <p className="text-sm text-slate-500 mb-2">No tasks configured for this service in this cycle</p>
-        <p className="text-xs text-slate-400">Add tasks to track what needs to be done before deployment</p>
+        <p className="text-sm text-slate-500 mb-2">
+          No tasks configured for this service in this cycle
+        </p>
+        <p className="text-xs text-slate-400">
+          Add tasks to track what needs to be done before deployment
+        </p>
       </div>
     );
   }
 
   return (
     <div className="space-y-2 pr-2">
-      {tasks.map((task) => (
+      {tasks.map(task => (
         <TaskItemComponent
           key={task.id}
           task={task}
@@ -50,4 +54,4 @@ export function TaskList({
       ))}
     </div>
   );
-} 
+}

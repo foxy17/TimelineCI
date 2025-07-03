@@ -29,11 +29,11 @@ export function LoginForm() {
     if (!emailRegex.test(email)) {
       return 'Please enter a valid email address';
     }
-    
+
     if (!email.endsWith('@clootrack.com')) {
       return 'Only clootrack.com email addresses are allowed';
     }
-    
+
     return null;
   };
 
@@ -76,9 +76,7 @@ export function LoginForm() {
           <Mail className="h-5 w-5" />
           Sign In
         </CardTitle>
-        <CardDescription>
-          Enter your clootrack.com email to receive a magic link
-        </CardDescription>
+        <CardDescription>Enter your clootrack.com email to receive a magic link</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -89,7 +87,7 @@ export function LoginForm() {
               type="email"
               placeholder="you@clootrack.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </div>

@@ -36,15 +36,15 @@ export function DependencyErrorModal({
             Dependencies Not Met
           </DialogTitle>
           <DialogDescription>
-            Cannot start deployment for <strong>{serviceName}</strong> because the following 
+            Cannot start deployment for <strong>{serviceName}</strong> because the following
             dependencies are not yet deployed:
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="py-4">
           <div className="space-y-2">
-            {unmetDependencies.map((dep) => (
-              <div 
+            {unmetDependencies.map(dep => (
+              <div
                 key={dep.service_id}
                 className="flex items-center gap-2 p-2 bg-amber-50 rounded-md border border-amber-200"
               >
@@ -53,16 +53,14 @@ export function DependencyErrorModal({
               </div>
             ))}
           </div>
-          
+
           <p className="text-sm text-slate-600 mt-4">
             Please ensure all dependencies are deployed before starting this deployment.
           </p>
         </div>
 
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>
-            Got it
-          </Button>
+          <Button onClick={() => onOpenChange(false)}>Got it</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

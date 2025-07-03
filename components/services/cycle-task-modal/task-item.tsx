@@ -35,9 +35,9 @@ export function TaskItemComponent({
           <Textarea
             ref={editTextareaRef}
             value={editText}
-            onChange={(e) => setEditText(e.target.value)}
+            onChange={e => setEditText(e.target.value)}
             className="min-h-[40px] resize-none overflow-hidden"
-            onKeyDown={(e) => {
+            onKeyDown={e => {
               if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
                 onSave();
@@ -48,21 +48,11 @@ export function TaskItemComponent({
             }}
           />
           <div className="flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={onSave}
-              disabled={!editText.trim()}
-            >
+            <Button type="button" size="sm" onClick={onSave} disabled={!editText.trim()}>
               <Check className="h-4 w-4" />
               Save
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onCancel}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={onCancel}>
               Cancel
             </Button>
           </div>
@@ -103,4 +93,4 @@ export function TaskItemComponent({
       </div>
     </div>
   );
-} 
+}

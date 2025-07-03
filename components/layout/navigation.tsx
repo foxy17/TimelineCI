@@ -16,14 +16,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  History, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Settings,
+  History,
+  LogOut,
   User,
   GitBranch,
-  Workflow
+  Workflow,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -45,16 +45,15 @@ export function Navigation() {
           <div className="flex items-center space-x-8">
             <Link href="/dashboard" className="flex items-center space-x-2">
               <Image src="/favicon.ico" alt="TimelineCI Logo" width={40} height={40} />
-              <span className="font-semibold text-slate-900">
-                TimelineCI
-              </span>
+              <span className="font-semibold text-slate-900">TimelineCI</span>
             </Link>
-            
+
             <div className="hidden md:flex space-x-4">
-              {navigation.map((item) => {
-                const isActive = pathname === item.href || 
+              {navigation.map(item => {
+                const isActive =
+                  pathname === item.href ||
                   (item.href !== '/dashboard' && pathname.startsWith(item.href));
-                
+
                 return (
                   <Link
                     key={item.name}
@@ -78,7 +77,7 @@ export function Navigation() {
             <Badge variant="secondary" className="hidden sm:inline-flex">
               {user?.email?.split('@')[1]}
             </Badge>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center space-x-2">
@@ -94,7 +93,10 @@ export function Navigation() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="flex items-center">
+                <DropdownMenuItem
+                  onClick={() => setSettingsOpen(true)}
+                  className="flex items-center"
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
@@ -108,11 +110,8 @@ export function Navigation() {
           </div>
         </div>
       </div>
-      
-      <SettingsModal 
-        open={settingsOpen} 
-        onOpenChange={setSettingsOpen} 
-      />
+
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
     </nav>
   );
 }

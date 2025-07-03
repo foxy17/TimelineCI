@@ -7,7 +7,13 @@ import { DeploymentView, DeploymentCycle } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Calendar, Clock, User, GitBranch, Search, Filter } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { toast } from 'sonner';
@@ -28,14 +34,8 @@ export function HistoryPage() {
     try {
       const supabase = createClient();
       const [deploymentsRes, cyclesRes] = await Promise.all([
-        supabase
-          .from('v_deployments')
-          .select('*')
-          .order('updated_at', { ascending: false }),
-        supabase
-          .from('deployment_cycles')
-          .select('*')
-          .order('created_at', { ascending: false }),
+        supabase.from('v_deployments').select('*').order('updated_at', { ascending: false }),
+        supabase.from('deployment_cycles').select('*').order('created_at', { ascending: false }),
       ]);
 
       if (deploymentsRes.error) throw deploymentsRes.error;
@@ -51,13 +51,10 @@ export function HistoryPage() {
   };
 
   const filteredDeployments = deployments.filter(deployment => {
-    const matchesSearch = deployment.service_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()) ||
-      deployment.cycle_label
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-    
+    const matchesSearch =
+      deployment.service_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      deployment.cycle_label.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesCycle = selectedCycle === 'all' || deployment.cycle_id === selectedCycle;
     const matchesState = selectedState === 'all' || deployment.state === selectedState;
 
@@ -102,9 +99,7 @@ export function HistoryPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Deployment History</h1>
-        <p className="text-slate-600 mt-1">
-          Complete timeline of all deployment activities
-        </p>
+        <p className="text-slate-600 mt-1">Complete timeline of all deployment activities</p>
       </div>
 
       {/* Filters */}
@@ -123,7 +118,7 @@ export function HistoryPage() {
                 <Input
                   placeholder="Search services or cycles..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -151,7 +146,6 @@ export function HistoryPage() {
                 <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="triggered">In Progress</SelectItem>
                 <SelectItem value="deployed">Deployed</SelectItem>
-
               </SelectContent>
             </Select>
           </div>
@@ -175,19 +169,15 @@ export function HistoryPage() {
             </CardContent>
           </Card>
         ) : (
-          filteredDeployments.map((deployment) => (
+          filteredDeployments.map(deployment => (
             <Card key={deployment.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <GitBranch className="h-5 w-5 text-slate-500" />
                     <div>
-                      <h3 className="font-semibold text-slate-900">
-                        {deployment.service_name}
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        {deployment.cycle_label}
-                      </p>
+                      <h3 className="font-semibold text-slate-900">{deployment.service_name}</h3>
+                      <p className="text-sm text-slate-600">{deployment.cycle_label}</p>
                     </div>
                   </div>
                   <Badge variant={getStateBadgeVariant(deployment.state)}>
@@ -196,34 +186,26 @@ export function HistoryPage() {
                 </div>
 
                 {deployment.service_description && (
-                  <p className="text-sm text-slate-600 mb-4">
-                    {deployment.service_description}
-                  </p>
+                  <p className="text-sm text-slate-600 mb-4">{deployment.service_description}</p>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Clock className="h-4 w-4" />
-                    <span>
-                      Updated {formatDistanceToNow(new Date(deployment.updated_at))} ago
-                    </span>
+                    <span>Updated {formatDistanceToNow(new Date(deployment.updated_at))} ago</span>
                   </div>
-                  
+
                   {deployment.started_at && (
                     <div className="flex items-center gap-2 text-slate-600">
                       <Calendar className="h-4 w-4" />
-                      <span>
-                        Started {format(new Date(deployment.started_at), 'MMM d, HH:mm')}
-                      </span>
+                      <span>Started {format(new Date(deployment.started_at), 'MMM d, HH:mm')}</span>
                     </div>
                   )}
 
                   {deployment.updated_by_email && (
                     <div className="flex items-center gap-2 text-slate-600">
                       <User className="h-4 w-4" />
-                      <span>
-                        By {deployment.updated_by_email.split('@')[0]}
-                      </span>
+                      <span>By {deployment.updated_by_email.split('@')[0]}</span>
                     </div>
                   )}
                 </div>
@@ -233,10 +215,11 @@ export function HistoryPage() {
                     Finished {format(new Date(deployment.finished_at), 'MMM d, HH:mm')}
                     {deployment.started_at && (
                       <span className="ml-2">
-                        (Duration: {formatDistanceToNow(
-                          new Date(deployment.started_at),
-                          { includeSeconds: true }
-                        )})
+                        (Duration:{' '}
+                        {formatDistanceToNow(new Date(deployment.started_at), {
+                          includeSeconds: true,
+                        })}
+                        )
                       </span>
                     )}
                   </div>

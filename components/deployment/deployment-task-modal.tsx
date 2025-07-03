@@ -34,11 +34,11 @@ export function DeploymentTaskModal({
             Task from service: <span className="font-bold">{serviceName}</span>
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="flex-1 overflow-y-auto px-1">
           <MarkdownRenderer content={task.text} />
         </div>
       </DialogContent>
     </Dialog>
   );
-} 
+}

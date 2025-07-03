@@ -15,7 +15,7 @@ export function ServicesInCycle({
   cycleServices,
   onManageTasks,
   onManageDependencies,
-  onRemoveService
+  onRemoveService,
 }: ServicesInCycleProps) {
   return (
     <Card>
@@ -25,18 +25,14 @@ export function ServicesInCycle({
           Services in Cycle
           <Badge variant="secondary">{cycleServices.length}</Badge>
         </CardTitle>
-        <CardDescription>
-          Services participating in this deployment cycle
-        </CardDescription>
+        <CardDescription>Services participating in this deployment cycle</CardDescription>
       </CardHeader>
       <CardContent>
         {cycleServices.length === 0 ? (
-          <p className="text-slate-600 text-center py-4">
-            No services in this cycle yet
-          </p>
+          <p className="text-slate-600 text-center py-4">No services in this cycle yet</p>
         ) : (
           <div className="space-y-3">
-            {cycleServices.map((service) => (
+            {cycleServices.map(service => (
               <div
                 key={service.id}
                 className="flex items-center justify-between p-3 border rounded-lg"
@@ -44,20 +40,20 @@ export function ServicesInCycle({
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{service.name}</span>
-                    <Badge 
+                    <Badge
                       variant={
-                        service.deployment_state === 'deployed' ? 'default' :
-                        service.deployment_state === 'triggered' ? 'secondary' :
-                        'outline'
+                        service.deployment_state === 'deployed'
+                          ? 'default'
+                          : service.deployment_state === 'triggered'
+                            ? 'secondary'
+                            : 'outline'
                       }
                     >
                       {service.deployment_state.replace('_', ' ')}
                     </Badge>
                   </div>
                   {service.description && (
-                    <p className="text-sm text-slate-600 mt-1">
-                      {service.description}
-                    </p>
+                    <p className="text-sm text-slate-600 mt-1">{service.description}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -77,11 +73,7 @@ export function ServicesInCycle({
                   >
                     Dependencies
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onRemoveService(service.id)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => onRemoveService(service.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -92,4 +84,4 @@ export function ServicesInCycle({
       </CardContent>
     </Card>
   );
-} 
+}

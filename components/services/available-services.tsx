@@ -18,18 +18,14 @@ export function AvailableServices({ availableServices, onAddService }: Available
           Available Services
           <Badge variant="secondary">{availableServices.length}</Badge>
         </CardTitle>
-        <CardDescription>
-          Services that can be added to this cycle
-        </CardDescription>
+        <CardDescription>Services that can be added to this cycle</CardDescription>
       </CardHeader>
       <CardContent>
         {availableServices.length === 0 ? (
-          <p className="text-slate-600 text-center py-4">
-            All services are already in this cycle
-          </p>
+          <p className="text-slate-600 text-center py-4">All services are already in this cycle</p>
         ) : (
           <div className="space-y-3">
-            {availableServices.map((service) => (
+            {availableServices.map(service => (
               <div
                 key={service.id}
                 className="flex items-center justify-between p-3 border rounded-lg"
@@ -37,15 +33,10 @@ export function AvailableServices({ availableServices, onAddService }: Available
                 <div className="flex-1">
                   <span className="font-medium">{service.name}</span>
                   {service.description && (
-                    <p className="text-sm text-slate-600 mt-1">
-                      {service.description}
-                    </p>
+                    <p className="text-sm text-slate-600 mt-1">{service.description}</p>
                   )}
                 </div>
-                <Button
-                  size="sm"
-                  onClick={() => onAddService(service.id)}
-                >
+                <Button size="sm" onClick={() => onAddService(service.id)}>
                   <Plus className="h-4 w-4 mr-1" />
                   Add
                 </Button>
@@ -56,4 +47,4 @@ export function AvailableServices({ availableServices, onAddService }: Available
       </CardContent>
     </Card>
   );
-} 
+}

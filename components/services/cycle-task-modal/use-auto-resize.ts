@@ -12,4 +12,4 @@ export const useAutoResize = (value: string) => {
   }, [value]);
 
   return textareaRef;
-}; 
+};

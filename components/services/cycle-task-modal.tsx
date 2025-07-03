@@ -1,1 +1,1 @@
-export { CycleTaskModal } from './cycle-task-modal/index'; 
+export { CycleTaskModal } from './cycle-task-modal/index';

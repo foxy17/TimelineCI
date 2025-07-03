@@ -48,4 +48,3 @@ Timeline CI provides a deployment visibility dashboard for teams operating multi
 - **Easy retrospectives** – search past cycles to learn from previous deployments.
 
 Together, these features bring greater visibility and confidence to organizations deploying many microservices. Happy shipping! 🚢
-

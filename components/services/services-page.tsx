@@ -7,7 +7,7 @@ import { CycleTaskModal } from '@/components/services/cycle-task-modal';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Calendar, Package } from 'lucide-react';
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -33,16 +33,16 @@ export function ServicesPage() {
   // Data loading and management
   const { tenantServices, cycles, loading, refetch: refetchServices } = useServicesData();
   const { selectedCycleId, setSelectedCycleId, selectedCycle } = useCycleSelection(cycles);
-  const { cycleServices, availableServices, refetch: refetchCycleServices } = useCycleServices(selectedCycleId);
-  
+  const {
+    cycleServices,
+    availableServices,
+    refetch: refetchCycleServices,
+  } = useCycleServices(selectedCycleId);
+
   // Operations
-  const { 
-    serviceToRemove, 
-    setServiceToRemove, 
-    addServiceToCycle, 
-    confirmRemoveService 
-  } = useServiceOperations();
-  
+  const { serviceToRemove, setServiceToRemove, addServiceToCycle, confirmRemoveService } =
+    useServiceOperations();
+
   // Modal management
   const {
     createModalOpen,
@@ -98,9 +98,7 @@ export function ServicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Services</h1>
-          <p className="text-slate-600 mt-1">
-            Manage your service pool and deployment cycles
-          </p>
+          <p className="text-slate-600 mt-1">Manage your service pool and deployment cycles</p>
         </div>
         <Button onClick={openCreateModal}>
           <Plus className="mr-2 h-4 w-4" />
@@ -122,10 +120,7 @@ export function ServicesPage() {
         </TabsList>
 
         <TabsContent value="pool" className="space-y-6">
-          <ServicePoolTab 
-            tenantServices={tenantServices}
-            onCreateService={openCreateModal}
-          />
+          <ServicePoolTab tenantServices={tenantServices} onCreateService={openCreateModal} />
         </TabsContent>
 
         <TabsContent value="cycles" className="space-y-6">
@@ -175,15 +170,13 @@ export function ServicesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Service from Cycle</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this service from the deployment cycle? 
-              This will also remove any dependencies involving this service in this cycle.
+              Are you sure you want to remove this service from the deployment cycle? This will also
+              remove any dependencies involving this service in this cycle.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRemoveServiceFromCycle}>
-              Remove
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleRemoveServiceFromCycle}>Remove</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

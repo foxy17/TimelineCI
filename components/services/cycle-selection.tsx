@@ -1,6 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Calendar } from 'lucide-react';
 import { DeploymentCycle } from '@/lib/supabase';
 
@@ -11,11 +17,11 @@ interface CycleSelectionProps {
   onCycleChange: (cycleId: string) => void;
 }
 
-export function CycleSelection({ 
-  cycles, 
-  selectedCycleId, 
-  selectedCycle, 
-  onCycleChange 
+export function CycleSelection({
+  cycles,
+  selectedCycleId,
+  selectedCycle,
+  onCycleChange,
 }: CycleSelectionProps) {
   return (
     <Card>
@@ -44,8 +50,8 @@ export function CycleSelection({
           </Select>
           {selectedCycle && (
             <div className="flex gap-2">
-              <Badge variant={selectedCycle.is_active ? "default" : "outline"}>
-                {selectedCycle.is_active ? "Active" : "Inactive"}
+              <Badge variant={selectedCycle.is_active ? 'default' : 'outline'}>
+                {selectedCycle.is_active ? 'Active' : 'Inactive'}
               </Badge>
               <Badge variant="outline">
                 Created {new Date(selectedCycle.created_at).toLocaleDateString()}
@@ -56,4 +62,4 @@ export function CycleSelection({
       </CardContent>
     </Card>
   );
-} 
+}

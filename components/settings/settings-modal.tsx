@@ -44,12 +44,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setLoading(true);
     try {
       const supabase = createClient();
-      
+
       // Update user metadata
       const { error } = await supabase.auth.updateUser({
         data: {
-          full_name: displayName.trim()
-        }
+          full_name: displayName.trim(),
+        },
       });
 
       if (error) {
@@ -82,9 +82,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <User className="h-5 w-5" />
             User Settings
           </DialogTitle>
-          <DialogDescription>
-            Manage your account settings and preferences.
-          </DialogDescription>
+          <DialogDescription>Manage your account settings and preferences.</DialogDescription>
         </DialogHeader>
 
         {initialLoading ? (
@@ -105,9 +103,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 disabled
                 className="bg-slate-50"
               />
-              <p className="text-xs text-slate-500">
-                Email address cannot be changed
-              </p>
+              <p className="text-xs text-slate-500">Email address cannot be changed</p>
             </div>
 
             <div className="space-y-2">
@@ -119,7 +115,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="displayName"
                 type="text"
                 value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                onChange={e => setDisplayName(e.target.value)}
                 placeholder="Enter your display name"
                 maxLength={100}
               />
@@ -131,17 +127,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         )}
 
         <DialogFooter className="gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleCancel}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={handleCancel} disabled={loading}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave}
-            disabled={loading || initialLoading}
-          >
+          <Button onClick={handleSave} disabled={loading || initialLoading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
           </Button>
@@ -149,4 +138,4 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

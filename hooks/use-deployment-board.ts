@@ -72,7 +72,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
       setDeployments(deploymentsData || []);
       setServices(servicesData || []);
       setDependencies(depsData || []);
-      
+
       if (deploymentsData && deploymentsData.length > 0) {
         setCycleLabel(deploymentsData[0].cycle_label);
       }
@@ -111,7 +111,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
           loadData();
         }
       )
-      .subscribe((status) => {
+      .subscribe(status => {
         if (status === 'SUBSCRIBED') {
           setIsRealTimeConnected(true);
           toast.success('Real-time updates connected');
@@ -129,169 +129,174 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     };
   }, [cycleId, loadData]);
 
-  const handleStateChange = useCallback(async (
-    serviceId: string,
-    action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
-  ) => {
-    // Optimistic update mapping
-    const optimisticStateMap = {
-      ready: 'ready' as const,
-      start: 'triggered' as const,
-      deployed: 'deployed' as const,
-      reset_not_ready: 'not_ready' as const,
-      reset_ready: 'ready' as const,
-      reset_triggered: 'triggered' as const,
-    };
+  const handleStateChange = useCallback(
+    async (
+      serviceId: string,
+      action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered'
+    ) => {
+      // Optimistic update mapping
+      const optimisticStateMap = {
+        ready: 'ready' as const,
+        start: 'triggered' as const,
+        deployed: 'deployed' as const,
+        reset_not_ready: 'not_ready' as const,
+        reset_ready: 'ready' as const,
+        reset_triggered: 'triggered' as const,
+      };
 
-    const newState = optimisticStateMap[action];
-    
-    setDeployments(prev => prev.map(d => 
-      d.service_id === serviceId 
-        ? { 
-            ...d, 
-            state: newState,
-            updated_at: new Date().toISOString(),
-            ...(action === 'start' && { started_at: new Date().toISOString() }),
-            ...(action === 'deployed' && { finished_at: new Date().toISOString() })
-          }
-        : d
-    ));
+      const newState = optimisticStateMap[action];
 
-    try {
-      const supabase = createClient();
-      let error;
+      setDeployments(prev =>
+        prev.map(d =>
+          d.service_id === serviceId
+            ? {
+                ...d,
+                state: newState,
+                updated_at: new Date().toISOString(),
+                ...(action === 'start' && { started_at: new Date().toISOString() }),
+                ...(action === 'deployed' && { finished_at: new Date().toISOString() }),
+              }
+            : d
+        )
+      );
 
-      switch (action) {
-        case 'ready':
-          // Check if all tasks are completed before allowing transition to ready
-          const deployment = deployments.find(d => d.service_id === serviceId);
-          if (deployment && deployment.tasks && deployment.tasks.length > 0) {
-            const incompleteTasks = deployment.tasks.filter(task => !task.completed);
-            if (incompleteTasks.length > 0) {
-              // Revert optimistic update
-              loadData();
-              toast.error('Please complete all tasks before marking as ready');
-              return;
+      try {
+        const supabase = createClient();
+        let error;
+
+        switch (action) {
+          case 'ready':
+            // Check if all tasks are completed before allowing transition to ready
+            const deployment = deployments.find(d => d.service_id === serviceId);
+            if (deployment && deployment.tasks && deployment.tasks.length > 0) {
+              const incompleteTasks = deployment.tasks.filter(task => !task.completed);
+              if (incompleteTasks.length > 0) {
+                // Revert optimistic update
+                loadData();
+                toast.error('Please complete all tasks before marking as ready');
+                return;
+              }
             }
-          }
-          
-          ({ error } = await supabase.rpc('set_service_ready', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'start':
-          ({ error } = await supabase.rpc('start_deployment', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'deployed':
-          ({ error } = await supabase.rpc('mark_deployed', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_not_ready':
-          ({ error } = await supabase.rpc('reset_service_to_not_ready', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_ready':
-          ({ error } = await supabase.rpc('set_service_ready_flexible', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-        case 'reset_triggered':
-          ({ error } = await supabase.rpc('reset_service_to_triggered', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          }));
-          break;
-      }
 
-      if (error) {
-        // Revert optimistic update on error
-        loadData();
-        
-        if (error.message === 'DEPENDENCIES_NOT_DEPLOYED') {
-          // Get unmet dependencies for this cycle
-          const { data: unmetDeps } = await supabase.rpc('get_unmet_dependencies', {
-            p_cycle_id: cycleId,
-            p_service_id: serviceId,
-          });
-
-          const serviceName = deployments.find(d => d.service_id === serviceId)?.service_name || 'Unknown';
-          setDependencyError({
-            serviceName,
-            unmetDeps: unmetDeps || [],
-          });
-          return;
+            ({ error } = await supabase.rpc('set_service_ready', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
+          case 'start':
+            ({ error } = await supabase.rpc('start_deployment', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
+          case 'deployed':
+            ({ error } = await supabase.rpc('mark_deployed', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
+          case 'reset_not_ready':
+            ({ error } = await supabase.rpc('reset_service_to_not_ready', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
+          case 'reset_ready':
+            ({ error } = await supabase.rpc('set_service_ready_flexible', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
+          case 'reset_triggered':
+            ({ error } = await supabase.rpc('reset_service_to_triggered', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            }));
+            break;
         }
-        throw error;
-      }
 
-      toast.success('State updated successfully!');
-      
-      // If real-time is not connected, manually refresh after a short delay
-      if (!isRealTimeConnected) {
-        setTimeout(() => {
+        if (error) {
+          // Revert optimistic update on error
           loadData();
-        }, 1000);
-      }
-      
-    } catch (error: any) {
-      // Revert optimistic update on error
-      loadData();
-      toast.error(error.message || 'Failed to update state');
-    }
-  }, [cycleId, deployments, isRealTimeConnected, loadData]);
 
-  const handleTaskToggle = useCallback(async (serviceId: string, taskId: string, completed: boolean) => {
-    // Optimistically update the task completion status
-    setDeployments(prev => prev.map(d => 
-      d.service_id === serviceId 
-        ? { 
-            ...d, 
-            tasks: d.tasks.map(task => 
-              task.id === taskId 
-                ? { ...task, completed }
-                : task
-            )
+          if (error.message === 'DEPENDENCIES_NOT_DEPLOYED') {
+            // Get unmet dependencies for this cycle
+            const { data: unmetDeps } = await supabase.rpc('get_unmet_dependencies', {
+              p_cycle_id: cycleId,
+              p_service_id: serviceId,
+            });
+
+            const serviceName =
+              deployments.find(d => d.service_id === serviceId)?.service_name || 'Unknown';
+            setDependencyError({
+              serviceName,
+              unmetDeps: unmetDeps || [],
+            });
+            return;
           }
-        : d
-    ));
+          throw error;
+        }
 
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.rpc('update_task_completion', {
-        p_cycle_id: cycleId,
-        p_service_id: serviceId,
-        p_task_id: taskId,
-        p_completed: completed
-      });
+        toast.success('State updated successfully!');
 
-      if (error) {
+        // If real-time is not connected, manually refresh after a short delay
+        if (!isRealTimeConnected) {
+          setTimeout(() => {
+            loadData();
+          }, 1000);
+        }
+      } catch (error: any) {
         // Revert optimistic update on error
         loadData();
-        throw error;
+        toast.error(error.message || 'Failed to update state');
       }
+    },
+    [cycleId, deployments, isRealTimeConnected, loadData]
+  );
 
-      // If real-time is not connected, manually refresh after a short delay
-      if (!isRealTimeConnected) {
-        setTimeout(() => {
+  const handleTaskToggle = useCallback(
+    async (serviceId: string, taskId: string, completed: boolean) => {
+      // Optimistically update the task completion status
+      setDeployments(prev =>
+        prev.map(d =>
+          d.service_id === serviceId
+            ? {
+                ...d,
+                tasks: d.tasks.map(task => (task.id === taskId ? { ...task, completed } : task)),
+              }
+            : d
+        )
+      );
+
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('update_task_completion', {
+          p_cycle_id: cycleId,
+          p_service_id: serviceId,
+          p_task_id: taskId,
+          p_completed: completed,
+        });
+
+        if (error) {
+          // Revert optimistic update on error
           loadData();
-        }, 500);
+          throw error;
+        }
+
+        // If real-time is not connected, manually refresh after a short delay
+        if (!isRealTimeConnected) {
+          setTimeout(() => {
+            loadData();
+          }, 500);
+        }
+      } catch (error: any) {
+        // Revert optimistic update on error
+        loadData();
+        toast.error(error.message || 'Failed to update task');
       }
-      
-    } catch (error: any) {
-      // Revert optimistic update on error
-      loadData();
-      toast.error(error.message || 'Failed to update task');
-    }
-  }, [cycleId, isRealTimeConnected, loadData]);
+    },
+    [cycleId, isRealTimeConnected, loadData]
+  );
 
   const refreshData = useCallback(async () => {
     setLoading(true);
@@ -303,19 +308,22 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     setDependencyError(null);
   }, []);
 
-  const getServiceDependencies = useCallback((serviceId: string) => {
-    return dependencies
-      .filter(dep => dep.service_id === serviceId)
-      .map(dep => {
-        const depService = services.find(s => s.id === dep.depends_on_service_id);
-        const depDeployment = deployments.find(d => d.service_id === dep.depends_on_service_id);
-        return {
-          ...dep,
-          serviceName: depService?.name || 'Unknown',
-          isDeployed: depDeployment?.state === 'deployed',
-        };
-      });
-  }, [dependencies, services, deployments]);
+  const getServiceDependencies = useCallback(
+    (serviceId: string) => {
+      return dependencies
+        .filter(dep => dep.service_id === serviceId)
+        .map(dep => {
+          const depService = services.find(s => s.id === dep.depends_on_service_id);
+          const depDeployment = deployments.find(d => d.service_id === dep.depends_on_service_id);
+          return {
+            ...dep,
+            serviceName: depService?.name || 'Unknown',
+            isDeployed: depDeployment?.state === 'deployed',
+          };
+        });
+    },
+    [dependencies, services, deployments]
+  );
 
   useEffect(() => {
     loadData();
@@ -340,4 +348,4 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     clearDependencyError,
     getServiceDependencies,
   };
-} 
+}

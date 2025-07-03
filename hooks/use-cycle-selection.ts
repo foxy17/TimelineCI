@@ -18,4 +18,4 @@ export function useCycleSelection(cycles: DeploymentCycle[]) {
     setSelectedCycleId,
     selectedCycle,
   };
-} 
+}

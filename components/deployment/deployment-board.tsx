@@ -35,7 +35,6 @@ const stateConfig = {
     color: 'bg-green-50 border-green-200',
     badge: 'default',
   },
-
 } as const;
 
 export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
@@ -56,10 +55,13 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
     return <div className="text-center py-8">Loading deployment board...</div>;
   }
 
-  const groupedDeployments = Object.entries(stateConfig).reduce((acc, [state]) => {
-    acc[state as DeploymentState] = deployments.filter(d => d.state === state);
-    return acc;
-  }, {} as Record<DeploymentState, DeploymentView[]>);
+  const groupedDeployments = Object.entries(stateConfig).reduce(
+    (acc, [state]) => {
+      acc[state as DeploymentState] = deployments.filter(d => d.state === state);
+      return acc;
+    },
+    {} as Record<DeploymentState, DeploymentView[]>
+  );
 
   return (
     <div className="space-y-6">
@@ -82,22 +84,26 @@ export function DeploymentBoard({ cycleId }: DeploymentBoardProps) {
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-lg">
                 {config.label}
-                <Badge 
+                <Badge
                   variant={config.badge as any}
-                  className={state === 'deployed' ? 'bg-green-600 text-white hover:bg-green-700' : ''}
+                  className={
+                    state === 'deployed' ? 'bg-green-600 text-white hover:bg-green-700' : ''
+                  }
                 >
                   {groupedDeployments[state as DeploymentState]?.length || 0}
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {groupedDeployments[state as DeploymentState]?.map((deployment) => (
+              {groupedDeployments[state as DeploymentState]?.map(deployment => (
                 <DeploymentCard
                   key={deployment.id}
                   deployment={deployment}
                   dependencies={getServiceDependencies(deployment.service_id)}
-                  onStateChange={(action) => handleStateChange(deployment.service_id, action)}
-                  onTaskToggle={(taskId, completed) => handleTaskToggle(deployment.service_id, taskId, completed)}
+                  onStateChange={action => handleStateChange(deployment.service_id, action)}
+                  onTaskToggle={(taskId, completed) =>
+                    handleTaskToggle(deployment.service_id, taskId, completed)
+                  }
                 />
               ))}
             </CardContent>

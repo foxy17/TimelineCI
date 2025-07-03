@@ -62,11 +62,11 @@ export function CycleTaskModal({
         <DialogHeader>
           <DialogTitle>Manage Tasks - {service.name}</DialogTitle>
           <DialogDescription>
-            Configure tasks for {service.name} in the selected deployment cycle.
-            Tasks help track what needs to be done before marking a service as ready.
+            Configure tasks for {service.name} in the selected deployment cycle. Tasks help track
+            what needs to be done before marking a service as ready.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="flex flex-col flex-1 overflow-hidden">
           <div className="space-y-4 pb-4">
             <CycleSelector
@@ -98,11 +98,9 @@ export function CycleTaskModal({
               </div>
             </div>
 
-            {showNote && (
-              <Note onHide={handleHideNote} />
-            )}
+            {showNote && <Note onHide={handleHideNote} />}
           </div>
-          
+
           <DialogFooter className="pt-4">
             <Button
               type="button"
@@ -112,11 +110,7 @@ export function CycleTaskModal({
             >
               Cancel
             </Button>
-            <Button 
-              type="button" 
-              onClick={handleClose}
-              disabled={loading || !currentCycleId}
-            >
+            <Button type="button" onClick={handleClose} disabled={loading || !currentCycleId}>
               Done
             </Button>
           </DialogFooter>
@@ -124,4 +118,4 @@ export function CycleTaskModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

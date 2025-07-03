@@ -5,7 +5,9 @@ export function useServiceModals() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [dependencyModalOpen, setDependencyModalOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<TenantService | CycleServiceWithState | null>(null);
+  const [selectedService, setSelectedService] = useState<
+    TenantService | CycleServiceWithState | null
+  >(null);
 
   const openCreateModal = () => setCreateModalOpen(true);
   const closeCreateModal = () => setCreateModalOpen(false);
@@ -42,4 +44,4 @@ export function useServiceModals() {
     openTaskModal,
     closeTaskModal,
   };
-} 
+}

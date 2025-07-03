@@ -14,7 +14,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Loader2, Copy } from 'lucide-react';
 
@@ -39,7 +45,7 @@ export function CycleDependencyModal({
   const [loading, setLoading] = useState(false);
   const [currentCycleId, setCurrentCycleId] = useState(cycleId);
   const [copyFromCycleId, setCopyFromCycleId] = useState<string>('');
-  
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -76,14 +82,16 @@ export function CycleDependencyModal({
           .from('microservice_deps')
           .select('depends_on_service_id')
           .eq('cycle_id', currentCycleId)
-          .eq('service_id', service.id)
+          .eq('service_id', service.id),
       ]);
 
       if (servicesRes.error) throw servicesRes.error;
       if (depsRes.error) throw depsRes.error;
 
       // Filter out the current service from available services
-      setAvailableServices((servicesRes.data || []).filter((s: CycleServiceWithState) => s.id !== service.id));
+      setAvailableServices(
+        (servicesRes.data || []).filter((s: CycleServiceWithState) => s.id !== service.id)
+      );
       setSelectedDependencies(depsRes.data?.map((dep: any) => dep.depends_on_service_id) || []);
     } catch (error) {
       toast.error('Failed to load cycle data');
@@ -138,9 +146,7 @@ export function CycleDependencyModal({
 
   const handleDependencyChange = (serviceId: string, checked: boolean) => {
     setSelectedDependencies(prev =>
-      checked
-        ? [...prev, serviceId]
-        : prev.filter(id => id !== serviceId)
+      checked ? [...prev, serviceId] : prev.filter(id => id !== serviceId)
     );
   };
 
@@ -156,7 +162,7 @@ export function CycleDependencyModal({
             Only services participating in the cycle can be selected as dependencies.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="space-y-6 py-4">
             {/* Cycle Selection */}
@@ -210,17 +216,19 @@ export function CycleDependencyModal({
               <Label className="text-base font-medium">Dependencies for this cycle</Label>
               <div className="space-y-3 max-h-60 overflow-y-auto border rounded-md p-3">
                 {availableServices.length === 0 ? (
-                  <p className="text-sm text-slate-500">No other services available in this cycle</p>
+                  <p className="text-sm text-slate-500">
+                    No other services available in this cycle
+                  </p>
                 ) : (
-                  availableServices.map((availableService) => {
+                  availableServices.map(availableService => {
                     const isSelected = selectedDependencies.includes(availableService.id);
-                    
+
                     return (
                       <div key={availableService.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={availableService.id}
                           checked={isSelected}
-                          onCheckedChange={(checked) =>
+                          onCheckedChange={checked =>
                             handleDependencyChange(availableService.id, checked as boolean)
                           }
                         />
@@ -232,9 +240,7 @@ export function CycleDependencyModal({
                             {availableService.name}
                           </Label>
                           {availableService.description && (
-                            <p className="text-xs text-slate-500">
-                              {availableService.description}
-                            </p>
+                            <p className="text-xs text-slate-500">{availableService.description}</p>
                           )}
                         </div>
                       </div>
@@ -245,11 +251,11 @@ export function CycleDependencyModal({
             </div>
 
             <div className="text-sm text-slate-600 bg-blue-50 p-3 rounded-md">
-              <strong>Note:</strong> Dependencies are cycle-specific and can only be set between 
+              <strong>Note:</strong> Dependencies are cycle-specific and can only be set between
               services that participate in the same deployment cycle.
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button
               type="button"

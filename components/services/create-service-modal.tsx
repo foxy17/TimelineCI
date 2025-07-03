@@ -69,7 +69,8 @@ export function CreateServiceModal({ open, onOpenChange, onSuccess }: CreateServ
         <DialogHeader>
           <DialogTitle>Add New Service</DialogTitle>
           <DialogDescription>
-            Create a new microservice. It will be automatically added to all active deployment cycles.
+            Create a new microservice. It will be automatically added to all active deployment
+            cycles.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -79,7 +80,7 @@ export function CreateServiceModal({ open, onOpenChange, onSuccess }: CreateServ
               <Input
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 placeholder="e.g., auth-service"
                 required
               />
@@ -89,7 +90,7 @@ export function CreateServiceModal({ open, onOpenChange, onSuccess }: CreateServ
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Brief description of the service..."
                 rows={3}
               />
