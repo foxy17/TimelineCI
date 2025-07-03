@@ -14,8 +14,6 @@ const nextConfig = {
   },
   // Enable compression
   compress: true,
-  // Enable SWC minification
-  swcMinify: true,
   // Enable React strict mode
   reactStrictMode: true,
   // Generate build ID for better caching

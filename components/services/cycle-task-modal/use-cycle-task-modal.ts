@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, TenantService, CycleServiceWithState, DeploymentCycle, TaskItem } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+import { TenantService, CycleServiceWithState, DeploymentCycle, TaskItem } from '@/lib/supabase';
 import { LOCAL_STORAGE_KEYS } from '@/lib/constants';
 import { toast } from 'sonner';
 
@@ -36,7 +37,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
 
   const loadCycles = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await createClient()
         .from('deployment_cycles')
         .select('*')
         .order('created_at', { ascending: false });
@@ -50,7 +51,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
 
   const loadTasks = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_service_tasks', { 
+      const { data, error } = await createClient().rpc('get_service_tasks', { 
         p_cycle_id: currentCycleId, 
         p_service_id: service.id 
       });
@@ -66,7 +67,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
     if (!newTaskText.trim()) return;
 
     try {
-      const { data: taskId, error } = await supabase.rpc('add_task_to_service', {
+      const { data: taskId, error } = await createClient().rpc('add_task_to_service', {
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
         p_task_text: newTaskText.trim()
@@ -84,7 +85,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
 
   const handleRemoveTask = async (taskId: string) => {
     try {
-      const { error } = await supabase.rpc('remove_task_from_service', {
+      const { error } = await createClient().rpc('remove_task_from_service', {
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
         p_task_id: taskId
@@ -108,7 +109,7 @@ export function useCycleTaskModal({ open, service, cycleId }: UseCycleTaskModalP
     if (!editingTaskId || !editTaskText.trim()) return;
 
     try {
-      const { error } = await supabase.rpc('update_task_text', {
+      const { error } = await createClient().rpc('update_task_text', {
         p_cycle_id: currentCycleId,
         p_service_id: service.id,
         p_task_id: editingTaskId,

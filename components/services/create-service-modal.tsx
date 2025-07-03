@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ export function CreateServiceModal({ open, onOpenChange, onSuccess }: CreateServ
 
     setLoading(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('create_microservice', {
         p_name: name.trim(),
         p_description: description.trim(),

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, DeploymentCycle } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+import { DeploymentCycle } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateCycleModal } from '@/components/cycles/create-cycle-modal';
@@ -24,6 +25,7 @@ export function CyclesPage() {
 
   const loadCycles = async () => {
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('deployment_cycles')
         .select('*')
@@ -45,6 +47,7 @@ export function CyclesPage() {
 
   const handleActivateCycle = async (cycleId: string) => {
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('activate_cycle', {
         p_cycle_id: cycleId,
       });
@@ -62,6 +65,7 @@ export function CyclesPage() {
     if (!completingCycle) return;
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('complete_active_cycle');
 
       if (error) throw error;

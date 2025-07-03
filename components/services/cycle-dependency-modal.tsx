@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, TenantService, CycleServiceWithState, DeploymentCycle } from '@/lib/supabase';
+import { TenantService, CycleServiceWithState, DeploymentCycle } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,8 @@ export function CycleDependencyModal({
   const [loading, setLoading] = useState(false);
   const [currentCycleId, setCurrentCycleId] = useState(cycleId);
   const [copyFromCycleId, setCopyFromCycleId] = useState<string>('');
+  
+  const supabase = createClient();
 
   useEffect(() => {
     if (open) {
@@ -81,7 +84,7 @@ export function CycleDependencyModal({
 
       // Filter out the current service from available services
       setAvailableServices((servicesRes.data || []).filter((s: CycleServiceWithState) => s.id !== service.id));
-      setSelectedDependencies(depsRes.data?.map(dep => dep.depends_on_service_id) || []);
+      setSelectedDependencies(depsRes.data?.map((dep: any) => dep.depends_on_service_id) || []);
     } catch (error) {
       toast.error('Failed to load cycle data');
     }
@@ -123,8 +126,8 @@ export function CycleDependencyModal({
 
       // Only include dependencies that exist in the current cycle
       const validDependencies = (data || [])
-        .map(dep => dep.depends_on_service_id)
-        .filter(depId => availableServices.some(s => s.id === depId));
+        .map((dep: any) => dep.depends_on_service_id)
+        .filter((depId: string) => availableServices.some(s => s.id === depId));
 
       setSelectedDependencies(validDependencies);
       toast.success('Dependencies copied from selected cycle');

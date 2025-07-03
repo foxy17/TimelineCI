@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, DeploymentView, DeploymentCycle } from '@/lib/supabase';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { createClient } from '@/utils/supabase/client';
+import { DeploymentView, DeploymentCycle } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ export function HistoryPage() {
 
   const loadData = async () => {
     try {
+      const supabase = createClient();
       const [deploymentsRes, cyclesRes] = await Promise.all([
         supabase
           .from('v_deployments')

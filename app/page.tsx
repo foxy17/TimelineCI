@@ -1,8 +1,8 @@
 'use client';
 
-import { useAuth } from '@/components/auth/auth-provider';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
@@ -19,7 +19,7 @@ export default function HomePage() {
     }
   }, [user, loading, router]);
 
-  // Show loading state while auth is being determined
+  // Show loading while determining auth state
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin" />

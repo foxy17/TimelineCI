@@ -6,10 +6,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Deployment Dashboard
+          TimelineCI 
           </h1>
           <p className="text-slate-600">
-            Coordinate deployments with dependency-aware orchestration
+            Coordinate deployments in teams with dependency-aware orchestration
           </p>
         </div>
         <LoginForm />

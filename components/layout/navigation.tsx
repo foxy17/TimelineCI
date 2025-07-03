@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
-import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,12 +33,8 @@ const navigation = [
 ];
 
 export function Navigation() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const pathname = usePathname();
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
 
   return (
     <nav className="bg-white border-b border-slate-200">
@@ -46,9 +42,9 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <Workflow className="h-6 w-6 text-blue-600" />
+              <Image src="/favicon.ico" alt="TimelineCI Logo" width={40} height={40} />
               <span className="font-semibold text-slate-900">
-                Deployment Dashboard
+                TimelineCI
               </span>
             </Link>
             
@@ -103,7 +99,7 @@ export function Navigation() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                <DropdownMenuItem onClick={signOut} className="text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
                 </DropdownMenuItem>

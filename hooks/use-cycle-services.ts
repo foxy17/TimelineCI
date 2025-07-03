@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, TenantService, CycleServiceWithState } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+import { TenantService, CycleServiceWithState } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function useCycleServices(selectedCycleId: string) {
@@ -10,6 +11,7 @@ export function useCycleServices(selectedCycleId: string) {
     if (!selectedCycleId) return;
 
     try {
+      const supabase = createClient();
       const [cycleServicesRes, availableServicesRes] = await Promise.all([
         supabase.rpc('get_cycle_services', { p_cycle_id: selectedCycleId }),
         supabase.rpc('get_available_services_for_cycle', { p_cycle_id: selectedCycleId }),

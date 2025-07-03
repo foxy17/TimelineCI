@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,16 @@ import { Mail, Loader2 } from 'lucide-react';
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'auth_callback_error') {
+      toast.error('Authentication failed. Please try again.');
+    } else if (error === 'unexpected_error') {
+      toast.error('An unexpected error occurred during authentication.');
+    }
+  }, [searchParams]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,6 +49,7 @@ export function LoginForm() {
         return;
       }
 
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {

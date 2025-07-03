@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, TenantService, DeploymentCycle } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+import { TenantService, DeploymentCycle } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function useServicesData() {
@@ -9,6 +10,7 @@ export function useServicesData() {
 
   const loadData = async () => {
     try {
+      const supabase = createClient();
       const [tenantServicesRes, cyclesRes] = await Promise.all([
         supabase.rpc('get_tenant_services'),
         supabase.from('deployment_cycles').select('*').order('created_at', { ascending: false }),

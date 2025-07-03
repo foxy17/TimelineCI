@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,7 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
 
     setLoading(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('create_deployment_cycle', {
         p_label: label.trim(),
       });

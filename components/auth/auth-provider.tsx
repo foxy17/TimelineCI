@@ -1,21 +1,23 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
 import { useRouter, usePathname } from 'next/navigation';
+import { User, Session } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContext {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContext>({
   user: null,
   session: null,
   loading: true,
+  signOut: async () => {},
 });
 
 export const useAuth = () => {
@@ -33,22 +35,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const signOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
+
   useEffect(() => {
+    const supabase = createClient();
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Handle initial routing
-      if (!session) {
-        // Only redirect to login if not already on auth pages
-        if (!pathname.startsWith('/auth/')) {
+      // Handle client-side routing based on auth state
+      if (session?.user) {
+        // User is authenticated
+        if (pathname.startsWith('/auth') || pathname === '/') {
+          router.push('/dashboard');
+        }
+      } else {
+        // User is not authenticated
+        if (!pathname.startsWith('/auth')) {
           router.push('/auth/login');
         }
-      } else if (pathname === '/' || pathname === '/auth/login') {
-        // Redirect authenticated users away from login pages
-        router.push('/dashboard');
       }
     });
 
@@ -60,21 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
-      if (!session) {
-        // Only redirect to login if not already on auth pages
-        if (!pathname.startsWith('/auth/')) {
-          router.push('/auth/login');
-        }
-      } else if (event === 'SIGNED_IN') {
-        // Redirect to dashboard when user signs in
+      // Handle auth state changes
+      if (event === 'SIGNED_IN' && session?.user) {
         router.push('/dashboard');
+      } else if (event === 'SIGNED_OUT') {
+        router.push('/auth/login');
       }
-      // For other events (like TOKEN_REFRESHED), preserve the current URL
     });
 
     return () => subscription.unsubscribe();
   }, [router, pathname]);
 
+  // Show loading state briefly while auth is being determined
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -83,21 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Allow access to auth pages even when not authenticated
-  if (!user && pathname.startsWith('/auth/')) {
-    return (
-      <AuthContext.Provider value={{ user, session, loading }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect to login
-  }
-
   return (
-    <AuthContext.Provider value={{ user, session, loading }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, DeploymentView, DeploymentState, Microservice, MicroserviceDep } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+import { DeploymentView, DeploymentState, Microservice, MicroserviceDep } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface DependencyError {
@@ -44,6 +45,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
 
   const loadData = useCallback(async () => {
     try {
+      const supabase = createClient();
       // Load deployments
       const { data: deploymentsData, error: deploymentsError } = await supabase
         .from('v_deployments')
@@ -82,6 +84,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
   }, [cycleId]);
 
   const setupRealtimeSubscriptions = useCallback(() => {
+    const supabase = createClient();
     const channel = supabase
       .channel(`deployment-updates-${cycleId}`)
       .on(
@@ -155,6 +158,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     ));
 
     try {
+      const supabase = createClient();
       let error;
 
       switch (action) {
@@ -261,6 +265,7 @@ export function useDeploymentBoard(cycleId: string): UseDeploymentBoardReturn {
     ));
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('update_task_completion', {
         p_cycle_id: cycleId,
         p_service_id: serviceId,

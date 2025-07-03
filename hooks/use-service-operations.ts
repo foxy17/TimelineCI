@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 
 export function useServiceOperations() {
@@ -9,6 +9,7 @@ export function useServiceOperations() {
     if (!cycleId) return;
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('add_service_to_cycle', {
         p_cycle_id: cycleId,
         p_service_id: serviceId,
@@ -28,6 +29,7 @@ export function useServiceOperations() {
     if (!cycleId || !serviceId) return;
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.rpc('remove_service_from_cycle', {
         p_cycle_id: cycleId,
         p_service_id: serviceId,
