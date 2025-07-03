@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
+import { SettingsModal } from '@/components/settings/settings-modal';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ const navigation = [
 export function Navigation() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <nav className="bg-white border-b border-slate-200">
@@ -92,11 +94,9 @@ export function Navigation() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings" className="flex items-center">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Link>
+                <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-red-600">
@@ -108,6 +108,11 @@ export function Navigation() {
           </div>
         </div>
       </div>
+      
+      <SettingsModal 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen} 
+      />
     </nav>
   );
 }

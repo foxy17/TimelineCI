@@ -38,12 +38,21 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'TimelineCI',
     title: 'TimelineCI - Deployment Dashboard',
-    description: 'Coordinate deployments with dependency-aware orchestration'
+    description: 'Coordinate deployments with dependency-aware orchestration',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'TimelineCI - Deployment Dashboard'
+      }
+    ]
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'TimelineCI - Deployment Dashboard',
-    description: 'Coordinate deployments with dependency-aware orchestration'
+    description: 'Coordinate deployments with dependency-aware orchestration',
+    images: ['/twitter.png']
   }
 };
 
