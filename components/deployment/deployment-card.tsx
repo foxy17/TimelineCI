@@ -16,9 +16,13 @@ import {
   Link as LinkIcon,
   RefreshCw,
   RotateCcw,
-  Square
+  Square,
+  Eye
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useState } from 'react';
+import { DeploymentTaskRenderer, getTaskLineCount } from '@/components/deployment/deployment-task-renderer';
+import { DeploymentTaskModal } from '@/components/deployment/deployment-task-modal';
 
 interface DeploymentCardProps {
   deployment: DeploymentView;
@@ -31,6 +35,14 @@ interface DeploymentCardProps {
 }
 
 export function DeploymentCard({ deployment, dependencies, onStateChange, onTaskToggle }: DeploymentCardProps) {
+  const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  const handleViewTask = (task: TaskItem) => {
+    setSelectedTask(task);
+    setIsTaskModalOpen(true);
+  };
+
   const getStateIcon = (state: string) => {
     switch (state) {
       case 'not_ready':
@@ -125,7 +137,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-medium">
-            {deployment.service_name}
+            {deployment.service_name} d sadasd asd  das as d d sadasd asd  das as d d sadasd asd  das as dd sadasd asd  das as d
           </CardTitle>
           {getStateIcon(deployment.state)}
         </div>
@@ -164,27 +176,50 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
               Tasks ({deployment.tasks.filter(t => t.completed).length}/{deployment.tasks.length})
             </div>
-            <div className="space-y-1">
-              {deployment.tasks.map((task) => (
-                <div key={task.id} className="flex items-center gap-2 text-xs">
-                  {deployment.state === 'not_ready' && onTaskToggle ? (
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={(checked) => onTaskToggle(task.id, checked as boolean)}
-                      className="h-4 w-4"
-                    />
-                  ) : (
-                    task.completed ? (
-                      <CheckCircle className="h-3 w-3 text-green-500" />
-                    ) : (
-                      <Square className="h-3 w-3 text-slate-400" />
-                    )
-                  )}
-                  <span className={clsx('text-sm', task.completed ? 'line-through text-slate-500' : 'text-slate-600')}>
-                    {task.text}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-2">
+              {deployment.tasks.map((task) => {
+                const isLongTask = getTaskLineCount(task.text) > 5;
+                
+                return (
+                  <div key={task.id} className="space-y-1">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 pt-0.5">
+                        {deployment.state === 'not_ready' && onTaskToggle ? (
+                          <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={(checked) => onTaskToggle(task.id, checked as boolean)}
+                            className="h-4 w-4"
+                          />
+                        ) : (
+                          task.completed ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Square className="h-4 w-4 text-slate-400 mt-0.5" />
+                          )
+                        )}
+                      </div>
+                      
+                      <div className={clsx('flex-1 min-w-0 overflow-hidden', task.completed ? 'opacity-60' : '')}>
+                        <div className={clsx(task.completed ? 'line-through' : '')}>
+                          <DeploymentTaskRenderer content={task.text} maxLines={5} />
+                        </div>
+                        
+                        {isLongTask && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800 mt-1"
+                            onClick={() => handleViewTask(task)}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View more
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <Separator />
           </div>
@@ -267,6 +302,13 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
           )}
         </div>
       </CardContent>
+
+      <DeploymentTaskModal
+        open={isTaskModalOpen}
+        onOpenChange={setIsTaskModalOpen}
+        task={selectedTask}
+        serviceName={deployment.service_name}
+      />
     </Card>
   );
 }
