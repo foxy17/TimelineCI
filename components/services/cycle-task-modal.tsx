@@ -182,11 +182,10 @@ export function CycleTaskModal({
         
         <div className="flex flex-col flex-1 overflow-hidden">
           <div className="space-y-4 pb-4">
-            {/* Cycle Selection */}
-            <div className="space-y-2">
+            <div className="space-y-2 px-1">
               <Label>Deployment Cycle</Label>
               <Select value={currentCycleId} onValueChange={setCurrentCycleId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a cycle" />
                 </SelectTrigger>
                 <SelectContent>
@@ -199,11 +198,10 @@ export function CycleTaskModal({
               </Select>
             </div>
 
-            {/* Copy from another cycle */}
             {otherCycles.length > 0 && (
               <div className="space-y-2">
                 <Label>Copy from another cycle (optional)</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 px-1">
                   <Select value={copyFromCycleId} onValueChange={setCopyFromCycleId}>
                     <SelectTrigger className="flex-1">
                       <SelectValue placeholder="Select cycle to copy from" />
@@ -248,7 +246,7 @@ export function CycleTaskModal({
           {/* Tasks management */}
           <div className="space-y-4 flex-1 overflow-hidden">
             {/* Add new task */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 px-1 pt-2">
               <Input
                 placeholder="Add a new task..."
                 value={newTaskText}
