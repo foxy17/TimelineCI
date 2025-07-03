@@ -23,6 +23,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { DeploymentTaskRenderer, getTaskLineCount } from '@/components/deployment/deployment-task-renderer';
 import { DeploymentTaskModal } from '@/components/deployment/deployment-task-modal';
+import { DeploymentConfirmationModal } from '@/components/deployment/deployment-confirmation-modal';
 
 interface DeploymentCardProps {
   deployment: DeploymentView;
@@ -37,10 +38,30 @@ interface DeploymentCardProps {
 export function DeploymentCard({ deployment, dependencies, onStateChange, onTaskToggle }: DeploymentCardProps) {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'start' | 'reset_triggered' | 'reset_ready' | 'reset_not_ready' | null>(null);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   const handleViewTask = (task: TaskItem) => {
     setSelectedTask(task);
     setIsTaskModalOpen(true);
+  };
+
+  const handleActionClick = (action: 'ready' | 'start' | 'deployed' | 'reset_not_ready' | 'reset_ready' | 'reset_triggered') => {
+    // Actions that require confirmation
+    if (action === 'start' || action === 'reset_triggered' || action === 'reset_ready' || action === 'reset_not_ready') {
+      setPendingAction(action);
+      setIsConfirmationOpen(true);
+    } else {
+      // Actions that don't require confirmation
+      onStateChange(action);
+    }
+  };
+
+  const handleConfirmAction = () => {
+    if (pendingAction) {
+      onStateChange(pendingAction);
+      setPendingAction(null);
+    }
   };
 
   const getStateIcon = (state: string) => {
@@ -73,7 +94,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
       case 'ready':
         actions.push(
           {
-            label: 'Start Deploy',
+            label: 'Start Deployment',
             action: 'start' as const,
             variant: 'default' as const,
           },
@@ -91,17 +112,12 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
             action: 'deployed' as const,
             variant: 'default' as const,
           },
-
           {
             label: 'Reset to Ready',
             action: 'reset_ready' as const,
             variant: 'outline' as const,
           },
-          {
-            label: 'Reset to Not Ready',
-            action: 'reset_not_ready' as const,
-            variant: 'outline' as const,
-          }
+
         );
         break;
       case 'deployed':
@@ -263,7 +279,6 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
                   return <ArrowRight className="mr-2 h-4 w-4" />;
                 case 'deployed':
                   return <CheckCircle className="mr-2 h-4 w-4" />;
-
                 case 'reset_triggered':
                   return <RefreshCw className="mr-2 h-4 w-4" />;
                 case 'reset_ready':
@@ -285,7 +300,7 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
                     ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200" 
                     : ""
                 }`}
-                onClick={() => onStateChange(action.action)}
+                onClick={() => handleActionClick(action.action)}
                 disabled={isDisabled}
               >
                 {getActionIcon()}
@@ -307,6 +322,14 @@ export function DeploymentCard({ deployment, dependencies, onStateChange, onTask
         open={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
         task={selectedTask}
+        serviceName={deployment.service_name}
+      />
+
+      <DeploymentConfirmationModal
+        open={isConfirmationOpen}
+        onOpenChange={setIsConfirmationOpen}
+        onConfirm={handleConfirmAction}
+        action={pendingAction || 'start'}
         serviceName={deployment.service_name}
       />
     </Card>
