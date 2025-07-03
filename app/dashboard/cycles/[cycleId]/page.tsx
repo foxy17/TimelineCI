@@ -4,9 +4,9 @@ import type { Metadata } from 'next';
 export async function generateMetadata({
   params,
 }: {
-  params: { cycleId: string };
+  params: Promise<{ cycleId: string }>;
 }): Promise<Metadata> {
-  const { cycleId } = params;
+  const { cycleId } = await params;
   return {
     title: `Deployment Board – Cycle ${cycleId} – TimelineCI`,
     description: 'Monitor deployments and manage dependencies for this cycle.',
