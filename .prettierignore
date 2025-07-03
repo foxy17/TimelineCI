@@ -1,0 +1,33 @@
+# Ignore artifacts:
+build/
+dist/
+coverage/
+node_modules/
+.next/
+.vercel/
+
+# Ignore package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Ignore generated files
+*.min.js
+*.min.css
+
+# Ignore config files that shouldn't be formatted
+.env*
+*.log
+
+# Ignore public assets
+public/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+
+# Ignore migration files (they are auto-generated)
+supabase/migrations/*.sql 

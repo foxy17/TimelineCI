@@ -97,7 +97,7 @@ export function CreateCycleModal({ open, onOpenChange, onSuccess }: CreateCycleM
             </div>
             <div className="bg-blue-50 p-3 rounded-md text-sm">
               <strong>Note:</strong> All services and dependencies from your most recent cycle 
-              will be automatically added to this new cycle in "not_ready" state. You can add 
+              will be automatically added to this new cycle in &ldquo;not_ready&rdquo; state. You can add 
               or remove services later if needed.
             </div>
           </div>

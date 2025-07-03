@@ -127,8 +127,8 @@ export function CyclesPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Complete Deployment Cycle</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to complete the active cycle "{activeCycle.label}"? 
-                    This will mark it as inactive and you'll need to create a new cycle or activate 
+                    Are you sure you want to complete the active cycle &ldquo;{activeCycle.label}&rdquo;? 
+                    This will mark it as inactive and you&apos;ll need to create a new cycle or activate 
                     an existing one to continue deployments.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
