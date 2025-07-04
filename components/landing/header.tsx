@@ -22,21 +22,21 @@ export function LandingHeader() {
   }, [])
 
   return (
-    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] md:w-auto">
       <div
         className={cn(
           "bg-white/90 backdrop-blur-md border border-indigo-100 rounded-full shadow-lg transition-all duration-500 ease-out transform",
           isScrolled 
-            ? "px-4 py-2 scale-95 shadow-xl" 
-            : "px-6 py-3 w-full max-w-6xl scale-100 shadow-lg"
+            ? "px-6 py-2 sm:px-4 sm:py-2 md:px-4 md:py-2 scale-95 shadow-xl" 
+            : "px-8 py-3 sm:px-6 sm:py-3 md:px-6 md:py-3 w-full md:max-w-6xl scale-100 shadow-lg"
         )}
         style={{
-          width: isScrolled ? "auto" : "100%",
-          maxWidth: isScrolled ? "none" : "1152px",
+          width: isScrolled ? "auto" : undefined,
+          maxWidth: isScrolled ? "none" : undefined,
         }}
       >
-        <div className="flex items-center justify-between transition-all duration-500 ease-out gap-x-[11px]">
-          <Link className="flex items-center justify-center" href="#">
+        <div className="flex items-center justify-between transition-all duration-500 ease-out gap-x-3 sm:gap-x-[11px]">
+          <Link className="flex items-center justify-center flex-shrink-0" href="#">
             <Image 
               src="/android-chrome-512x512.png" 
               alt="Timelin-CI Logo" 
@@ -44,7 +44,7 @@ export function LandingHeader() {
               height={36} 
               className="mr-2 transition-all duration-300 ease-out" 
             />
-            <span className="font-bold text-gray-900 transition-all duration-300 ease-out">
+            <span className="font-bold text-gray-900 transition-all duration-300 ease-out whitespace-nowrap">
               Timelin-CI
             </span>
           </Link>
@@ -65,7 +65,7 @@ export function LandingHeader() {
             </Link>
           </nav>
 
-          <div className="flex gap-2 transition-all duration-300 ease-out">
+          <div className="flex gap-2 transition-all duration-300 ease-out flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
