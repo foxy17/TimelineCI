@@ -60,6 +60,7 @@ export function ServicesPage() {
   // Event handlers
   const handleServiceCreated = () => {
     refetchServices();
+    refetchCycleServices();
     closeCreateModal();
   };
 
