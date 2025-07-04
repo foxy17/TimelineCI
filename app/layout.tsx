@@ -2,13 +2,19 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
-import { AuthProvider } from '@/components/auth/auth-provider';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NODE_ENV === 'production'
+      ? process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'https://timeline-ci.vercel.app/' // Replace with your actual domain
+      : 'http://localhost:3000'
+  ),
   title: 'TimelineCI - Deployment Dashboard',
   description: 'Coordinate deployments with dependency-aware orchestration',
   manifest: '/site.webmanifest',
@@ -58,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        {children}
         <Toaster />
         <Analytics />
         <SpeedInsights />

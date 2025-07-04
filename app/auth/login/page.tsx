@@ -1,4 +1,5 @@
 import { LoginForm } from '@/components/auth/login-form';
+import { Suspense } from 'react';
 
 export default function LoginPage() {
   return (
@@ -10,7 +11,18 @@ export default function LoginPage() {
             Coordinate deployments in teams with dependency-aware orchestration
           </p>
         </div>
-        <LoginForm />
+        <Suspense fallback={
+          <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-6"></div>
+              <div className="h-10 bg-gray-200 rounded mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        }>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );
