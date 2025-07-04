@@ -1,9 +1,13 @@
 'use client';
 
+import { Suspense, lazy } from 'react';
 import { Button } from '@/components/ui/button';
 import { CreateServiceModal } from '@/components/services/create-service-modal';
 import { CycleDependencyModal } from '@/components/services/cycle-dependency-modal';
 import { CycleTaskModal } from '@/components/services/cycle-task-modal';
+
+// Lazy load the edit modal
+const EditServiceModal = lazy(() => import('@/components/services/edit-service-modal').then(module => ({ default: module.EditServiceModal })));
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Calendar, Package } from 'lucide-react';
@@ -24,6 +28,9 @@ import { useCycleSelection } from '@/hooks/use-cycle-selection';
 import { useCycleServices } from '@/hooks/use-cycle-services';
 import { useServiceOperations } from '@/hooks/use-service-operations';
 import { useServiceModals } from '@/hooks/use-service-modals';
+
+// Types
+import { TenantService } from '@/lib/supabase';
 
 // Tab components
 import { ServicePoolTab } from '@/components/services/service-pool-tab';
@@ -46,11 +53,14 @@ export function ServicesPage() {
   // Modal management
   const {
     createModalOpen,
+    editModalOpen,
     dependencyModalOpen,
     taskModalOpen,
     selectedService,
     openCreateModal,
     closeCreateModal,
+    openEditModal,
+    closeEditModal,
     openDependencyModal,
     closeDependencyModal,
     openTaskModal,
@@ -62,6 +72,12 @@ export function ServicesPage() {
     refetchServices();
     refetchCycleServices();
     closeCreateModal();
+  };
+
+  const handleServiceUpdated = () => {
+    refetchServices();
+    refetchCycleServices();
+    closeEditModal();
   };
 
   const handleDependenciesUpdated = () => {
@@ -121,7 +137,11 @@ export function ServicesPage() {
         </TabsList>
 
         <TabsContent value="pool" className="space-y-6">
-          <ServicePoolTab tenantServices={tenantServices} onCreateService={openCreateModal} />
+          <ServicePoolTab 
+            tenantServices={tenantServices} 
+            onCreateService={openCreateModal}
+            onEditService={openEditModal}
+          />
         </TabsContent>
 
         <TabsContent value="cycles" className="space-y-6">
@@ -145,6 +165,15 @@ export function ServicesPage() {
         onOpenChange={closeCreateModal}
         onSuccess={handleServiceCreated}
       />
+
+      <Suspense fallback={null}>
+        <EditServiceModal
+          open={editModalOpen}
+          onOpenChange={closeEditModal}
+          service={selectedService as TenantService}
+          onSuccess={handleServiceUpdated}
+        />
+      </Suspense>
 
       {selectedService && (
         <CycleDependencyModal

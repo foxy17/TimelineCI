@@ -238,6 +238,14 @@ export type Database = {
         };
         Returns: string;
       };
+      update_microservice: {
+        Args: {
+          p_service_id: string;
+          p_name: string;
+          p_description?: string;
+        };
+        Returns: void;
+      };
       get_unmet_dependencies: {
         Args: {
           p_cycle_id: string;

@@ -1,15 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Package } from 'lucide-react';
+import { Plus, Package, Edit2 } from 'lucide-react';
 import { TenantService } from '@/lib/supabase';
 
 interface ServicePoolTabProps {
   tenantServices: TenantService[];
   onCreateService: () => void;
+  onEditService: (service: TenantService) => void;
 }
 
-export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolTabProps) {
+export function ServicePoolTab({ tenantServices, onCreateService, onEditService }: ServicePoolTabProps) {
   if (tenantServices.length === 0) {
     return (
       <Card>
@@ -42,8 +43,19 @@ export function ServicePoolTab({ tenantServices, onCreateService }: ServicePoolT
             {service.description && <CardDescription>{service.description}</CardDescription>}
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between text-sm text-slate-600">
-              <span>Created {new Date(service.created_at).toLocaleDateString()}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-600">
+                Created {new Date(service.created_at).toLocaleDateString()}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEditService(service)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit2 className="h-4 w-4" />
+                <span className="sr-only">Edit service</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
