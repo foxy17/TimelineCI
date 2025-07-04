@@ -2,7 +2,24 @@
 const nextConfig = {
   // Optimized for Vercel deployment
   experimental: {
-    optimizePackageImports: ['@supabase/supabase-js', 'lucide-react', 'date-fns'],
+    optimizePackageImports: [
+      '@supabase/supabase-js', 
+      'lucide-react', 
+      'date-fns',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-alert-dialog'
+    ],
+    // Enable more aggressive tree shaking
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   eslint: {
     ignoreDuringBuilds: true,

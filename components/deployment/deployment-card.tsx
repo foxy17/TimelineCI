@@ -170,8 +170,7 @@ export function DeploymentCard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-medium">
-            {deployment.service_name} d sadasd asd das as d d sadasd asd das as d d sadasd asd das
-            as dd sadasd asd das as d
+            {deployment.service_name}
           </CardTitle>
           {getStateIcon(deployment.state)}
         </div>

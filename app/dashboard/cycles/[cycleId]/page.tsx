@@ -8,7 +8,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { cycleId } = await params;
   return {
-    title: `Deployment Board – Cycle ${cycleId} – TimelineCI`,
+    title: `Deployment Board – Cycle ${cycleId} – Timelin-CI`,
     description: 'Monitor deployments and manage dependencies for this cycle.',
   };
 }

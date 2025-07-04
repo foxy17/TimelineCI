@@ -1,6 +1,6 @@
 {
-  "name": "TimelineCI - Deployment Dashboard",
-  "short_name": "TimelineCI",
+  "name": "Timelin-CI - Deployment Dashboard",
+  "short_name": "Timelin-CI",
   "description": "Coordinate deployments with dependency-aware orchestration",
   "icons": [
     {

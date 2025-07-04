@@ -44,8 +44,8 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <Image src="/favicon.ico" alt="TimelineCI Logo" width={40} height={40} />
-              <span className="font-semibold text-slate-900">TimelineCI</span>
+              <Image src="/favicon.ico" alt="Timelin-CI Logo" width={40} height={40} />
+              <span className="font-semibold text-slate-900">Timelin-CI</span>
             </Link>
 
             <div className="hidden md:flex space-x-4">

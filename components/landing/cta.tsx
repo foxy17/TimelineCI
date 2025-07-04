@@ -13,7 +13,7 @@ export function LandingCTA() {
               Ready to Transform Your Deployments?
             </h2>
             <p className="mx-auto max-w-[600px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Join thousands of development teams who trust DeployFlow to orchestrate their microservices
+              Join thousands of development teams who trust Timelin-CI to gain visibility into their microservices
               deployments.
             </p>
           </div>

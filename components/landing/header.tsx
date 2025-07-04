@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Network } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { GetStartedButton } from "./get-started-button"
 import { cn } from "@/lib/utils"
@@ -37,9 +37,15 @@ export function LandingHeader() {
       >
         <div className="flex items-center justify-between transition-all duration-500 ease-out gap-x-[11px]">
           <Link className="flex items-center justify-center" href="#">
-            <Network className="mr-2 text-indigo-600 transition-all duration-300 ease-out" />
+            <Image 
+              src="/android-chrome-512x512.png" 
+              alt="Timelin-CI Logo" 
+              width={36} 
+              height={36} 
+              className="mr-2 transition-all duration-300 ease-out" 
+            />
             <span className="font-bold text-gray-900 transition-all duration-300 ease-out">
-              DeployFlow
+              Timelin-CI
             </span>
           </Link>
 

@@ -16,7 +16,7 @@ export function LandingBenefits() {
                 Reduce Deployment Time by 60%
               </h2>
               <p className="max-w-[600px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Teams using DeployFlow report significantly faster deployment cycles and fewer production issues.
+                Teams using Timelin-CI report significantly faster deployment cycles and fewer production issues.
               </p>
             </div>
             <ul className="grid gap-3 py-4">

@@ -22,13 +22,12 @@ export function LandingHero() {
               Deployment Visibility Made Simple
             </Badge>
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-gray-900">
-              Orchestrate Your
-              <span className="text-indigo-600"> Microservices </span>
-              Deployments
+              Gain Complete
+              <span className="text-indigo-600"> Deployment Visibility </span>
+              Across Microservices
             </h1>
             <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl leading-relaxed">
-              Visualize, manage, and track deployment cycles across your entire microservices architecture. Perfect
-              for teams who need clarity in complex deployment workflows.
+              Get real-time insights into your deployment pipeline. Track dependencies, monitor progress, and maintain full transparency across your entire microservices ecosystem.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
