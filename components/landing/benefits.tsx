@@ -41,14 +41,14 @@ export function LandingBenefits() {
                 <span className="text-gray-700">Scale confidently with automated dependency management</span>
               </li>
             </ul>
-            <div className="flex flex-col gap-3 min-[400px]:flex-row">
-              <GetStartedButton size="lg" className="h-12 px-8">
+            <div className="flex flex-col gap-3 sm:flex-row w-full max-w-sm">
+              <GetStartedButton size="lg" className="h-12 px-8 w-full sm:w-auto">
                 Start Your Free Trial
               </GetStartedButton>
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 px-8 bg-white/70 backdrop-blur-sm border-indigo-200 hover:bg-white/90"
+                className="h-12 px-8 bg-white/70 backdrop-blur-sm border-indigo-200 hover:bg-white/90 w-full sm:w-auto"
               >
                 Schedule Demo
               </Button>
