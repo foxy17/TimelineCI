@@ -127,9 +127,9 @@ export function CyclesList({
                       {!cycle.completed_at && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="ml-2">
-                              <MoreVertical className="mr-2 h-3 w-3" />
+                            <Button variant="outline" size="sm" className="ml-2">                          
                               Edit
+                              <MoreVertical className="ml-2 h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
