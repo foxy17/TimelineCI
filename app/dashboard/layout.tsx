@@ -8,7 +8,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen bg-slate-50">
         <Navigation />
         <main className="container mx-auto py-6 px-4">{children}</main>
-        <Toaster />
       </div>
     </AuthProvider>
   );
