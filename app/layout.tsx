@@ -2,9 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ConditionalAnalytics } from '@/components/analytics/conditional-analytics';
-import { AuthHandler } from '@/components/auth/auth-handler';
+import { AuthProvider } from '@/components/auth/auth-provider';
 import { Toaster } from 'sonner';
-import { Suspense } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,10 +64,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Suspense fallback={null}>
-          <AuthHandler />
-        </Suspense>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <ConditionalAnalytics />
         <Toaster />
       </body>

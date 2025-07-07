@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Optimized for Vercel deployment
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
   experimental: {
     optimizePackageImports: [
       '@supabase/supabase-js', 
@@ -10,16 +18,7 @@ const nextConfig = {
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-tabs',
       '@radix-ui/react-alert-dialog'
-    ],
-    // Enable more aggressive tree shaking
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    ], 
   },
   eslint: {
     ignoreDuringBuilds: true,
