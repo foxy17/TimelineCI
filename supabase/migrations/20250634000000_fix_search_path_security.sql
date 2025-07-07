@@ -4,7 +4,13 @@
   This migration fixes the "function_search_path_mutable" security warnings
   by setting the search_path parameter for all functions using ALTER FUNCTION.
   
-  This is much simpler than recreating all functions.
+  The search_path includes:
+  - public: For user-defined functions and tables
+  - extensions: For extension functions like uuid_generate_v4()
+  - pg_catalog: For built-in PostgreSQL functions
+  - pg_temp: For temporary objects
+  
+  This ensures functions can access all necessary schemas while maintaining security.
 */
 
 -- Fix all functions with error handling for missing functions
@@ -56,7 +62,8 @@ BEGIN
   FOREACH func_signature IN ARRAY functions_to_fix
   LOOP
     BEGIN
-      EXECUTE format('ALTER FUNCTION public.%s SET search_path = public', func_signature);
+      -- Set search_path to include public, extensions, pg_catalog, and pg_temp
+      EXECUTE format('ALTER FUNCTION public.%s SET search_path = public, extensions, pg_catalog, pg_temp', func_signature);
       RAISE NOTICE 'Fixed search_path for function: %', func_signature;
     EXCEPTION
       WHEN undefined_function THEN
