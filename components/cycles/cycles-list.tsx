@@ -4,7 +4,13 @@ import { DeploymentCycle } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, ArrowRight, CheckCircle, Play } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, Calendar, ArrowRight, CheckCircle, Play, MoreVertical, Edit3 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -14,9 +20,16 @@ interface CyclesListProps {
   loading: boolean;
   onActivateCycle: (cycleId: string) => void;
   onCreateCycle: () => void;
+  onEditCycle: (cycle: DeploymentCycle) => void;
 }
 
-export function CyclesList({ cycles, loading, onActivateCycle, onCreateCycle }: CyclesListProps) {
+export function CyclesList({
+  cycles,
+  loading,
+  onActivateCycle,
+  onCreateCycle,
+  onEditCycle,
+}: CyclesListProps) {
   const getCycleStatus = (cycle: DeploymentCycle) => {
     if (cycle.is_active) {
       return { label: 'In Progress', variant: 'default' as const, icon: null };
@@ -97,24 +110,46 @@ export function CyclesList({ cycles, loading, onActivateCycle, onCreateCycle }: 
                     <Calendar className="inline h-4 w-4 mr-1" />
                     {new Date(cycle.created_at).toLocaleDateString()}
                   </div>
-                  <div className="flex gap-2">
-                    {!cycle.is_active && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                        onClick={() => onActivateCycle(cycle.id)}
-                      >
-                        <Play className="mr-2 h-3 w-3" />
-                        Activate
-                      </Button>
-                    )}
-                    <Link href={`/dashboard/cycles/${cycle.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Board
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      {!cycle.is_active && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                          onClick={() => onActivateCycle(cycle.id)}
+                        >
+                          <Play className="mr-2 h-3 w-3" />
+                          Activate
+                        </Button>
+                      )}
+
+                      {!cycle.completed_at && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="ml-2">
+                              <MoreVertical className="mr-2 h-3 w-3" />
+                              Edit
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onEditCycle(cycle)}>
+                              <Edit3 className="mr-2 h-4 w-4" />
+                              Edit Cycle Name
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                      <Link href={`/dashboard/cycles/${cycle.id}`}>
+                        <Button
+                          size="sm"
+                          className="bg-black hover:bg-gray-800 text-white font-semibold"
+                        >
+                          View Board
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -124,4 +159,4 @@ export function CyclesList({ cycles, loading, onActivateCycle, onCreateCycle }: 
       </div>
     </div>
   );
-} 
+}

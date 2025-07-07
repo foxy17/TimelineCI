@@ -11,14 +11,14 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: [
-      '@supabase/supabase-js', 
-      'lucide-react', 
+      '@supabase/supabase-js',
+      'lucide-react',
       'date-fns',
       '@radix-ui/react-dialog',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-tabs',
-      '@radix-ui/react-alert-dialog'
-    ], 
+      '@radix-ui/react-alert-dialog',
+    ],
   },
   eslint: {
     ignoreDuringBuilds: true,

@@ -169,9 +169,7 @@ export function DeploymentCard({
     <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-medium">
-            {deployment.service_name}
-          </CardTitle>
+          <CardTitle className="text-base font-medium">{deployment.service_name}</CardTitle>
           {getStateIcon(deployment.state)}
         </div>
         {deployment.service_description && (

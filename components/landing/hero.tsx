@@ -1,7 +1,7 @@
-import { CheckCircle, Zap } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { GetStartedButton } from "./get-started-button"
+import { CheckCircle, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { GetStartedButton } from './get-started-button';
 
 export function LandingHero() {
   return (
@@ -27,7 +27,8 @@ export function LandingHero() {
               Across Microservices
             </h1>
             <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl leading-relaxed">
-              Get real-time insights into your deployment pipeline. Track dependencies, monitor progress, and maintain full transparency across your entire microservices ecosystem.
+              Get real-time insights into your deployment pipeline. Track dependencies, monitor
+              progress, and maintain full transparency across your entire microservices ecosystem.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -55,5 +56,5 @@ export function LandingHero() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

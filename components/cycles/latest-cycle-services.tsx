@@ -26,28 +26,28 @@ export function LatestCycleServices({
   const getServiceStatus = (service: DeploymentView) => {
     switch (service.state) {
       case 'deployed':
-        return { 
-          color: 'bg-white border-slate-400', 
+        return {
+          color: 'bg-white border-slate-400',
           textColor: 'text-slate-900',
-          icon: <CheckCircle className="h-4 w-4 text-green-600" />
+          icon: <CheckCircle className="h-4 w-4 text-green-600" />,
         };
       case 'triggered':
-        return { 
-          color: 'bg-white border-slate-400', 
+        return {
+          color: 'bg-white border-slate-400',
           textColor: 'text-slate-900',
-          icon: <Clock className="h-4 w-4 text-yellow-600" />
+          icon: <Clock className="h-4 w-4 text-yellow-600" />,
         };
       case 'ready':
-        return { 
-          color: 'bg-white border-slate-400', 
+        return {
+          color: 'bg-white border-slate-400',
           textColor: 'text-slate-900',
-          icon: <Play className="h-4 w-4 text-blue-600" />
+          icon: <Play className="h-4 w-4 text-blue-600" />,
         };
       default:
-        return { 
-          color: 'bg-white border-slate-400', 
+        return {
+          color: 'bg-white border-slate-400',
           textColor: 'text-slate-900',
-          icon: <AlertTriangle className="h-4 w-4 text-slate-600" />
+          icon: <AlertTriangle className="h-4 w-4 text-slate-600" />,
         };
     }
   };
@@ -58,28 +58,36 @@ export function LatestCycleServices({
         const serviceStatus = getServiceStatus(service);
         const dependencies = getServiceDependencies(service.service_id);
         const taskCount = getTaskCompletionCount(service);
-        
+
         return (
           <Card key={service.service_id} className={clsx(serviceStatus.color, 'border')}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
-                  <CardTitle className={clsx('text-sm font-medium truncate', serviceStatus.textColor)}>
+                  <CardTitle
+                    className={clsx('text-sm font-medium truncate', serviceStatus.textColor)}
+                  >
                     {service.service_name}
                   </CardTitle>
                   {service.state !== 'not_ready' && (
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={clsx(
                         'text-xs px-2 py-0.5',
-                        service.state === 'deployed' && 'bg-green-100 text-green-800 border-green-300',
-                        service.state === 'triggered' && 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                        service.state === 'deployed' &&
+                          'bg-green-100 text-green-800 border-green-300',
+                        service.state === 'triggered' &&
+                          'bg-yellow-100 text-yellow-800 border-yellow-300',
                         service.state === 'ready' && 'bg-blue-100 text-blue-800 border-blue-300'
                       )}
                     >
-                      {service.state === 'deployed' ? 'Deployed' : 
-                       service.state === 'triggered' ? 'In Progress' : 
-                       service.state === 'ready' ? 'Ready' : ''}
+                      {service.state === 'deployed'
+                        ? 'Deployed'
+                        : service.state === 'triggered'
+                          ? 'In Progress'
+                          : service.state === 'ready'
+                            ? 'Ready'
+                            : ''}
                     </Badge>
                   )}
                 </div>
@@ -102,11 +110,12 @@ export function LatestCycleServices({
                   ))}
                 </div>
               )}
-              
+
               {/* Task Progress */}
               {taskCount.total > 0 && (
                 <div className="text-xs text-slate-600">
-                  <span className="font-medium">Tasks:</span> {taskCount.completed} out of {taskCount.total} completed
+                  <span className="font-medium">Tasks:</span> {taskCount.completed} out of{' '}
+                  {taskCount.total} completed
                 </div>
               )}
             </CardContent>
@@ -115,4 +124,4 @@ export function LatestCycleServices({
       })}
     </div>
   );
-} 
+}

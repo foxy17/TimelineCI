@@ -1,4 +1,4 @@
-import { BarChart3 } from "lucide-react"
+import { BarChart3 } from 'lucide-react';
 
 export function LandingDashboardPreview() {
   return (
@@ -34,8 +34,8 @@ export function LandingDashboardPreview() {
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold text-gray-900">Dashboard Screenshot</h3>
                     <p className="text-gray-600 max-w-md mx-auto">
-                      Replace this placeholder with your actual dashboard screenshot showing microservices
-                      deployment cycles
+                      Replace this placeholder with your actual dashboard screenshot showing
+                      microservices deployment cycles
                     </p>
                     <div className="flex justify-center gap-2 mt-4">
                       <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
@@ -50,5 +50,5 @@ export function LandingDashboardPreview() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

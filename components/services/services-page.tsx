@@ -7,7 +7,11 @@ import { CycleDependencyModal } from '@/components/services/cycle-dependency-mod
 import { CycleTaskModal } from '@/components/services/cycle-task-modal';
 
 // Lazy load the edit modal
-const EditServiceModal = lazy(() => import('@/components/services/edit-service-modal').then(module => ({ default: module.EditServiceModal })));
+const EditServiceModal = lazy(() =>
+  import('@/components/services/edit-service-modal').then(module => ({
+    default: module.EditServiceModal,
+  }))
+);
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Calendar, Package } from 'lucide-react';
@@ -137,8 +141,8 @@ export function ServicesPage() {
         </TabsList>
 
         <TabsContent value="pool" className="space-y-6">
-          <ServicePoolTab 
-            tenantServices={tenantServices} 
+          <ServicePoolTab
+            tenantServices={tenantServices}
             onCreateService={openCreateModal}
             onEditService={openEditModal}
           />

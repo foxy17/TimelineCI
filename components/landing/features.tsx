@@ -1,5 +1,5 @@
-import { CheckCircle, Users, Target, BarChart3, Clock, Shield, Network } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CheckCircle, Users, Target, BarChart3, Clock, Shield, Network } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function LandingFeatures() {
   return (
@@ -13,7 +13,8 @@ export function LandingFeatures() {
             Everything You Need for Deployment Success
           </h2>
           <p className="max-w-[900px] mx-auto text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-            Built for modern development teams who need to coordinate complex microservices deployments
+            Built for modern development teams who need to coordinate complex microservices
+            deployments
           </p>
         </div>
         <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 lg:grid-cols-3 lg:gap-12">
@@ -24,8 +25,8 @@ export function LandingFeatures() {
               </div>
               <CardTitle className="text-gray-900">Service Dependencies</CardTitle>
               <CardDescription className="text-gray-600">
-                Define and visualize complex interdependencies between your microservices with an intuitive graph
-                interface.
+                Define and visualize complex interdependencies between your microservices with an
+                intuitive graph interface.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -53,7 +54,8 @@ export function LandingFeatures() {
               </div>
               <CardTitle className="text-gray-900">Deployment Cycles</CardTitle>
               <CardDescription className="text-gray-600">
-                Create multiple deployment cycles with different service combinations and deployment strategies.
+                Create multiple deployment cycles with different service combinations and deployment
+                strategies.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -81,7 +83,8 @@ export function LandingFeatures() {
               </div>
               <CardTitle className="text-gray-900">Team Collaboration</CardTitle>
               <CardDescription className="text-gray-600">
-                Shared workspace where your entire organization can track progress and coordinate deployments.
+                Shared workspace where your entire organization can track progress and coordinate
+                deployments.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -109,7 +112,8 @@ export function LandingFeatures() {
               </div>
               <CardTitle className="text-gray-900">Real-time Monitoring</CardTitle>
               <CardDescription className="text-gray-600">
-                Track deployment progress with live updates and detailed status information for each service.
+                Track deployment progress with live updates and detailed status information for each
+                service.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -137,7 +141,8 @@ export function LandingFeatures() {
               </div>
               <CardTitle className="text-gray-900">Task Management</CardTitle>
               <CardDescription className="text-gray-600">
-                Assign and track tasks for each microservice with automated workflows and manual approvals.
+                Assign and track tasks for each microservice with automated workflows and manual
+                approvals.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -188,5 +193,5 @@ export function LandingFeatures() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

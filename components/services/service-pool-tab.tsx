@@ -10,7 +10,11 @@ interface ServicePoolTabProps {
   onEditService: (service: TenantService) => void;
 }
 
-export function ServicePoolTab({ tenantServices, onCreateService, onEditService }: ServicePoolTabProps) {
+export function ServicePoolTab({
+  tenantServices,
+  onCreateService,
+  onEditService,
+}: ServicePoolTabProps) {
   if (tenantServices.length === 0) {
     return (
       <Card>

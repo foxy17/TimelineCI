@@ -13,12 +13,8 @@ interface LatestCycleDisplayProps {
 }
 
 export function LatestCycleDisplay({ cycle }: LatestCycleDisplayProps) {
-  const {
-    latestCycleData,
-    loading,
-    getServiceDependencies,
-    getTaskCompletionCount,
-  } = useLatestCycle(cycle);
+  const { latestCycleData, loading, getServiceDependencies, getTaskCompletionCount } =
+    useLatestCycle(cycle);
 
   const getCycleStatus = (cycle: DeploymentCycle) => {
     if (cycle.is_active) {
@@ -71,4 +67,4 @@ export function LatestCycleDisplay({ cycle }: LatestCycleDisplayProps) {
       </CardContent>
     </Card>
   );
-} 
+}

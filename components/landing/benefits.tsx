@@ -1,6 +1,6 @@
-import { CheckCircle, BarChart3, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { GetStartedButton } from "./get-started-button"
+import { CheckCircle, BarChart3, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GetStartedButton } from './get-started-button';
 
 export function LandingBenefits() {
   return (
@@ -16,7 +16,8 @@ export function LandingBenefits() {
                 Reduce Deployment Time by 60%
               </h2>
               <p className="max-w-[600px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Teams using Timelin-CI report significantly faster deployment cycles and fewer production issues.
+                Teams using Timelin-CI report significantly faster deployment cycles and fewer
+                production issues.
               </p>
             </div>
             <ul className="grid gap-3 py-4">
@@ -28,7 +29,9 @@ export function LandingBenefits() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                <span className="text-gray-700">Reduce rollbacks with comprehensive pre-deployment checks</span>
+                <span className="text-gray-700">
+                  Reduce rollbacks with comprehensive pre-deployment checks
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
@@ -38,7 +41,9 @@ export function LandingBenefits() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                <span className="text-gray-700">Scale confidently with automated dependency management</span>
+                <span className="text-gray-700">
+                  Scale confidently with automated dependency management
+                </span>
               </li>
             </ul>
             <div className="flex flex-col gap-3 sm:flex-row w-full max-w-sm">
@@ -69,5 +74,5 @@ export function LandingBenefits() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

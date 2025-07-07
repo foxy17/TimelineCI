@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CreateCycleModal } from '@/components/cycles/create-cycle-modal';
+import { EditCycleModal } from '@/components/cycles/edit-cycle-modal';
 import { LatestCycleDisplay } from '@/components/cycles/latest-cycle-display';
 import { CyclesList } from '@/components/cycles/cycles-list';
 import { useCycles } from '@/components/cycles/hooks/use-cycles';
+import { DeploymentCycle } from '@/lib/supabase';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,8 +23,10 @@ import { Plus, CheckCircle } from 'lucide-react';
 
 export function CyclesPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState<DeploymentCycle | null>(null);
   const [completingCycle, setCompletingCycle] = useState<string | null>(null);
-  
+
   const {
     cycles,
     loading,
@@ -30,7 +34,7 @@ export function CyclesPage() {
     latestCycle,
     loadCycles,
     handleActivateCycle,
-    handleCompleteCycle: handleCompleteCycleAction
+    handleCompleteCycle: handleCompleteCycleAction,
   } = useCycles();
 
   const handleCycleCreated = () => {
@@ -38,9 +42,20 @@ export function CyclesPage() {
     setCreateModalOpen(false);
   };
 
+  const handleEditCycle = (cycle: DeploymentCycle) => {
+    setSelectedCycle(cycle);
+    setEditModalOpen(true);
+  };
+
+  const handleCycleEdited = () => {
+    loadCycles();
+    setEditModalOpen(false);
+    setSelectedCycle(null);
+  };
+
   const handleCompleteCycle = async () => {
     if (!completingCycle) return;
-    
+
     await handleCompleteCycleAction();
     setCompletingCycle(null);
   };
@@ -93,19 +108,27 @@ export function CyclesPage() {
         </div>
       </div>
 
-              <LatestCycleDisplay cycle={latestCycle} />
+      <LatestCycleDisplay cycle={latestCycle} />
 
-        <CyclesList 
-          cycles={cycles}
-          loading={loading}
-          onActivateCycle={handleActivateCycle}
-          onCreateCycle={() => setCreateModalOpen(true)}
-        />
+      <CyclesList
+        cycles={cycles}
+        loading={loading}
+        onActivateCycle={handleActivateCycle}
+        onCreateCycle={() => setCreateModalOpen(true)}
+        onEditCycle={handleEditCycle}
+      />
 
       <CreateCycleModal
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
         onSuccess={handleCycleCreated}
+      />
+
+      <EditCycleModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        cycle={selectedCycle}
+        onSuccess={handleCycleEdited}
       />
     </div>
   );

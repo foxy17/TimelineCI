@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}` 
+      ? process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
         : 'https://timeline-ci.vercel.app/' // Replace with your actual domain
       : 'http://localhost:3000'
   ),
@@ -64,9 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
         <ConditionalAnalytics />
         <Toaster />
       </body>

@@ -246,6 +246,13 @@ export type Database = {
         };
         Returns: void;
       };
+      update_cycle_name: {
+        Args: {
+          p_cycle_id: string;
+          p_label: string;
+        };
+        Returns: void;
+      };
       get_unmet_dependencies: {
         Args: {
           p_cycle_id: string;

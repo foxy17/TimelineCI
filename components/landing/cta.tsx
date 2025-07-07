@@ -1,4 +1,4 @@
-import { GetStartedButton } from "./get-started-button"
+import { GetStartedButton } from './get-started-button';
 
 export function LandingCTA() {
   return (
@@ -13,18 +13,20 @@ export function LandingCTA() {
               Ready to Transform Your Deployments?
             </h2>
             <p className="mx-auto max-w-[600px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Join thousands of development teams who trust Timelin-CI to gain visibility into their microservices
-              deployments.
+              Join thousands of development teams who trust Timelin-CI to gain visibility into their
+              microservices deployments.
             </p>
           </div>
           <div className="w-full max-w-sm space-y-3">
             <GetStartedButton size="lg" className="w-full h-12">
               Start Free Trial
             </GetStartedButton>
-            <p className="text-xs text-gray-500">14-day free trial • No credit card required • Cancel anytime</p>
+            <p className="text-xs text-gray-500">
+              14-day free trial • No credit card required • Cancel anytime
+            </p>
           </div>
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

@@ -25,7 +25,12 @@ interface EditServiceModalProps {
   onSuccess: () => void;
 }
 
-export function EditServiceModal({ open, onOpenChange, service, onSuccess }: EditServiceModalProps) {
+export function EditServiceModal({
+  open,
+  onOpenChange,
+  service,
+  onSuccess,
+}: EditServiceModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,10 +84,8 @@ export function EditServiceModal({ open, onOpenChange, service, onSuccess }: Edi
     }
   };
 
-  const hasChanges = service && (
-    name.trim() !== service.name || 
-    description.trim() !== (service.description || '')
-  );
+  const hasChanges =
+    service && (name.trim() !== service.name || description.trim() !== (service.description || ''));
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -90,7 +93,8 @@ export function EditServiceModal({ open, onOpenChange, service, onSuccess }: Edi
         <DialogHeader>
           <DialogTitle>Edit Service</DialogTitle>
           <DialogDescription>
-            Update the service name and description. Changes will be applied across all deployment cycles.
+            Update the service name and description. Changes will be applied across all deployment
+            cycles.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -134,4 +138,4 @@ export function EditServiceModal({ open, onOpenChange, service, onSuccess }: Edi
       </DialogContent>
     </Dialog>
   );
-} 
+}

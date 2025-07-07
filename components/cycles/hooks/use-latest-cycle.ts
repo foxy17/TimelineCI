@@ -58,23 +58,28 @@ export function useLatestCycle(cycle: DeploymentCycle | null): UseLatestCycleRet
     }
   }, []);
 
-  const getServiceDependencies = useCallback((serviceId: string) => {
-    if (!latestCycleData) return [];
-    
-    return latestCycleData.dependencies
-      .filter(dep => dep.service_id === serviceId)
-      .map(dep => {
-        const dependencyService = latestCycleData.services.find(s => s.service_id === dep.depends_on_service_id);
-        return {
-          serviceName: dependencyService?.service_name || 'Unknown Service',
-          isDeployed: dependencyService?.state === 'deployed'
-        };
-      });
-  }, [latestCycleData]);
+  const getServiceDependencies = useCallback(
+    (serviceId: string) => {
+      if (!latestCycleData) return [];
+
+      return latestCycleData.dependencies
+        .filter(dep => dep.service_id === serviceId)
+        .map(dep => {
+          const dependencyService = latestCycleData.services.find(
+            s => s.service_id === dep.depends_on_service_id
+          );
+          return {
+            serviceName: dependencyService?.service_name || 'Unknown Service',
+            isDeployed: dependencyService?.state === 'deployed',
+          };
+        });
+    },
+    [latestCycleData]
+  );
 
   const getTaskCompletionCount = useCallback((service: DeploymentView) => {
     if (!service.tasks || service.tasks.length === 0) return { completed: 0, total: 0 };
-    
+
     const completed = service.tasks.filter(task => task.completed).length;
     return { completed, total: service.tasks.length };
   }, []);
@@ -93,4 +98,4 @@ export function useLatestCycle(cycle: DeploymentCycle | null): UseLatestCycleRet
     getServiceDependencies,
     getTaskCompletionCount,
   };
-} 
+}

@@ -11,6 +11,7 @@ interface UseCyclesReturn {
   loadCycles: () => Promise<void>;
   handleActivateCycle: (cycleId: string) => Promise<void>;
   handleCompleteCycle: () => Promise<void>;
+  handleEditCycle: (cycleId: string, newLabel: string) => Promise<void>;
 }
 
 export function useCycles(): UseCyclesReturn {
@@ -34,21 +35,24 @@ export function useCycles(): UseCyclesReturn {
     }
   }, []);
 
-  const handleActivateCycle = useCallback(async (cycleId: string) => {
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.rpc('activate_cycle', {
-        p_cycle_id: cycleId,
-      });
+  const handleActivateCycle = useCallback(
+    async (cycleId: string) => {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('activate_cycle', {
+          p_cycle_id: cycleId,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast.success('Cycle activated successfully!');
-      await loadCycles();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to activate cycle');
-    }
-  }, [loadCycles]);
+        toast.success('Cycle activated successfully!');
+        await loadCycles();
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to activate cycle');
+      }
+    },
+    [loadCycles]
+  );
 
   const handleCompleteCycle = useCallback(async () => {
     try {
@@ -68,6 +72,38 @@ export function useCycles(): UseCyclesReturn {
     }
   }, [loadCycles]);
 
+  const handleEditCycle = useCallback(
+    async (cycleId: string, newLabel: string) => {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('update_cycle_name', {
+          p_cycle_id: cycleId,
+          p_label: newLabel,
+        });
+
+        if (error) {
+          // Handle specific error messages
+          if (error.message === 'CYCLE_LABEL_ALREADY_EXISTS') {
+            throw new Error('A cycle with this name already exists');
+          } else if (error.message === 'CANNOT_UPDATE_COMPLETED_CYCLE') {
+            throw new Error('Cannot update completed cycles');
+          } else if (error.message === 'CYCLE_LABEL_REQUIRED') {
+            throw new Error('Cycle name is required');
+          } else {
+            throw error;
+          }
+        }
+
+        toast.success('Cycle name updated successfully!');
+        await loadCycles();
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to update cycle name');
+        throw error; // Re-throw to allow modal to handle the error
+      }
+    },
+    [loadCycles]
+  );
+
   useEffect(() => {
     loadCycles();
   }, [loadCycles]);
@@ -83,5 +119,6 @@ export function useCycles(): UseCyclesReturn {
     loadCycles,
     handleActivateCycle,
     handleCompleteCycle,
+    handleEditCycle,
   };
-} 
+}
